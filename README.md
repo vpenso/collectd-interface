@@ -57,7 +57,7 @@ applications.
 Graph
 -----
 
-![Screenshot of User-Interface](https://github.com/vpenso/collectd-interface/raw/master/public/readme/user-interface.png  "Screenshot of the User-Interface")
+![Screenshot of User-Interface](https://github.com/vpenso/collectd-interface/blob/master/public/readme/user-interface.png  "Screenshot of the User-Interface")
 
 You can select individual graphs using the drop-down menu followed by 
 clicking the "Show" button. In case you just want to have the image, to
