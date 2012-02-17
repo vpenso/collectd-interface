@@ -1,0 +1,31 @@
+<ul>
+  <li>
+    <div class="label">Select data source:</div>
+    <select name="display">
+      <% for source in @data %>
+      <option><%= source %></option>
+      <% end %>
+    </select> 
+  </li>
+  <li>
+    <div class="label">Select output format:</div>
+    <select name="format">
+      <option>text</option>
+      <option>json</option>
+    </select>
+  </li>
+  <li>
+    <div class="label">Values of the last:</div>
+    <input type="text" name="last" value="12h"/>
+    <div class="explain">(s)econds (h)ours (d)ays (w)eeks</div>
+  </li>
+  <li>
+    <div class="label">Data accumulation function:</div>
+    <select name="function">
+      <option>max</option>
+      <option>min</option>
+      <option>average</option>
+      <option>last</option>
+    </select>
+  </li>
+</ul>

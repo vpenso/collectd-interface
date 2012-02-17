@@ -1,0 +1,19 @@
+<ul>
+<% if @display.first == 'all' then %>
+  <% @graphs.keys.sort.each do |name| %>
+    <% url = "/graph/#{name}?#{@args}" %>
+  <li>
+    <img src="<%= url %>"/><br/>
+    <a href="<%= url %>"><%= url %></a>
+  </li>
+  <% end %>
+<% else %>
+<%   @display.each do |graph| %>
+  <% url = "/graph/#{graph}?#{@args}"%>
+  <li>
+    <img src="<%= url %>"/><br/>
+    <a href="<%= url %>"><%= url %></a>
+  </li>
+<%   end%>
+<% end %>
+</ul>

@@ -1,0 +1,66 @@
+rrdtool graph <%= target %> -a <%= type.upcase%> \
+  --end now --start=end-<%= last %> \
+  --title='Process State' --vertical-label='Count' \
+  --grid-dash 1:1 --width=400 --height=100 \
+  --border=0 --color=BACK#FFFFFF \
+  --tabwidth=10 --lower-limit=0 \
+  DEF:sleep_av=<%= rrd_path %>/processes/ps_state-sleeping.rrd:value:AVERAGE \
+  DEF:sleep_min=<%= rrd_path %>/processes/ps_state-sleeping.rrd:value:MIN \
+  DEF:sleep_max=<%= rrd_path %>/processes/ps_state-sleeping.rrd:value:MAX \
+  DEF:run_av=<%= rrd_path %>/processes/ps_state-running.rrd:value:AVERAGE \
+  DEF:run_min=<%= rrd_path %>/processes/ps_state-running.rrd:value:MIN \
+  DEF:run_max=<%= rrd_path %>/processes/ps_state-running.rrd:value:MAX \
+  DEF:block_av=<%= rrd_path %>/processes/ps_state-blocked.rrd:value:AVERAGE \
+  DEF:block_min=<%= rrd_path %>/processes/ps_state-blocked.rrd:value:MIN \
+  DEF:block_max=<%= rrd_path %>/processes/ps_state-blocked.rrd:value:MAX \
+  DEF:stop_av=<%= rrd_path %>/processes/ps_state-stopped.rrd:value:AVERAGE \
+  DEF:stop_min=<%= rrd_path %>/processes/ps_state-stopped.rrd:value:MIN \
+  DEF:stop_max=<%= rrd_path %>/processes/ps_state-stopped.rrd:value:MAX \
+  DEF:page_av=<%= rrd_path %>/processes/ps_state-paging.rrd:value:AVERAGE \
+  DEF:page_min=<%= rrd_path %>/processes/ps_state-paging.rrd:value:MIN \
+  DEF:page_max=<%= rrd_path %>/processes/ps_state-paging.rrd:value:MAX \
+  DEF:zombi_av=<%= rrd_path %>/processes/ps_state-zombies.rrd:value:AVERAGE \
+  DEF:zombi_min=<%= rrd_path %>/processes/ps_state-zombies.rrd:value:MIN \
+  DEF:zombi_max=<%= rrd_path %>/processes/ps_state-zombies.rrd:value:MAX \
+  CDEF:sleep=sleep_av,sleep_av,UNKN,IF \
+  CDEF:run=run_av,sleep_av,run_av,+,UNKN,IF \
+  CDEF:block=block_av,sleep_av,run_av,block_av,+,+,UNKN,IF \
+  CDEF:stop=stop_av,sleep_av,run_av,block_av,stop_av,+,+,+,UNKN,IF \
+  CDEF:page=page_av,sleep_av,run_av,block_av,stop_av,page_av,+,+,+,+,UNKN,IF \
+  CDEF:zombi=zombi_av,sleep_av,run_av,block_av,stop_av,page_av,zombi_av,+,+,+,+,+,UNKN,IF \
+  AREA:sleep_av<%= color[:blue_light] %> \
+  AREA:run_av<%= color[:green_light] %>::STACK \
+  AREA:block_av<%= color[:yellow_light] %>::STACK \
+  AREA:stop_av<%= color[:red_light] %>::STACK \
+  AREA:page_av<%= color[:orange_light] %>::STACK \
+  AREA:zombi_av<%= color[:purple_light] %>::STACK \
+  LINE1:sleep<%= color[:blue_dark] %>:"Sleeping" \
+  GPRINT:sleep_min:MIN:"Min. %5.0lf" \
+  GPRINT:sleep_av:AVERAGE:"Avg. %5.0lf" \
+  GPRINT:sleep_max:MAX:"Max. %5.0lf" \
+  GPRINT:sleep_av:LAST:"Last %5.0lf" \
+  LINE1:run<%= color[:green_dark] %>:"Running " \
+  GPRINT:run_min:MIN:"Min. %5.0lf" \
+  GPRINT:run_av:AVERAGE:"Avg. %5.0lf" \
+  GPRINT:run_max:MAX:"Max. %5.0lf" \
+  GPRINT:run_av:LAST:"Last %5.0lf" \
+  LINE1:block<%= color[:yellow_dark] %>:"Blocked " \
+  GPRINT:block_min:MIN:"Min. %5.0lf" \
+  GPRINT:block_av:AVERAGE:"Avg. %5.0lf" \
+  GPRINT:block_max:MAX:"Max. %5.0lf" \
+  GPRINT:block_av:LAST:"Last %5.0lf" \
+  LINE1:stop<%= color[:red_dark] %>:"Stopped " \
+  GPRINT:stop_min:MIN:"Min. %5.0lf" \
+  GPRINT:stop_av:AVERAGE:"Avg. %5.0lf" \
+  GPRINT:stop_max:MAX:"Max. %5.0lf" \
+  GPRINT:stop_av:LAST:"Last %5.0lf" \
+  LINE1:page<%= color[:orange_dark] %>:"Paging  " \
+  GPRINT:page_min:MIN:"Min. %5.0lf" \
+  GPRINT:page_av:AVERAGE:"Avg. %5.0lf" \
+  GPRINT:page_max:MAX:"Max. %5.0lf" \
+  GPRINT:page_av:LAST:"Last %5.0lf" \
+  LINE1:zombi<%= color[:purple_dark] %>:"Zombies " \
+  GPRINT:zombi_min:MIN:"Min. %5.0lf" \
+  GPRINT:zombi_av:AVERAGE:"Avg. %5.0lf" \
+  GPRINT:zombi_max:MAX:"Max. %5.0lf" \
+  GPRINT:zombi_av:LAST:"Last %5.0lf" \

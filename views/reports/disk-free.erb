@@ -1,0 +1,20 @@
+<% require 'json' 
+content = `df -lh`.split("\n") 
+if @type == 'text' then %><%= content.join("\n") %>
+<% elsif @type == 'json' 
+  keys = content[0].chop.chop.split.map! { |v| v.downcase } 
+  json = Array.new 
+  content[1..-1].each { |values|  json << Hash[*keys.zip(values.split).flatten] } %><%= JSON.pretty_generate json %>
+<% else %>
+  <div style="font-size:160%"><strong>Local Storage</strong></div>
+  <table>
+  <thead>
+    <tr><th><%= content[0].chop.chop.split.join('</th><th>') %></th></tr>
+  </thead>
+  <tbody>
+  <% content[1..-1].each do |line| %>
+    <tr><td><%= line.split.join('</td><td>') %></td></tr>
+  <% end %>
+  </tbody>
+</table>
+<% end %>

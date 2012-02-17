@@ -1,0 +1,23 @@
+<ul>
+  <li>
+    <div class="label">Select graphs to display:</div>
+    <select multiple="yes" size="4" name='display[]'>
+      <option value='all'>all</option>
+      <% @graphs.keys.sort.each do |name| %>
+      <option value='<%= name %>'><%= name %></option>
+      <% end %>
+    </select>
+  </li>
+  <li>
+    <div class="label">Values of the last:</div>
+    <input type="text" name="last" value="12h"/>
+    <div class="explain">(s)econds (h)ours (d)ays (w)eeks</div>
+  </li>
+  <li>
+    <div class="label">Image type for graphs:</div>
+    <select name"image">
+      <option>png</option>
+      <option>svg</option>
+    </select>
+  </li>
+</ul>

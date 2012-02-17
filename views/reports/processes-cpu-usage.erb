@@ -1,0 +1,39 @@
+<% content = `ps -d -o pid,user,pcpu,pmem,state,time,args --sort pcpu | sed '/^ 0.0 /d' | tail -n 30` %>
+<% if @type == 'text' then %>
+<%=  content.split("\n").reverse.join("\n") %>
+<% elsif @type == 'json' %>
+<%   content = content.split("\n")[1..-1].reverse %>
+<%   keys = ['pid','user','cpu_percent','mem_percent','state','cpu_time','command'] %>
+<%   require 'json'; struct = Array.new %>
+<%   content.each do |process| %>
+<%     process = process.split %>
+<%     values = process[0..5] %>
+<%     values << process[6..-1].join(' ') %>
+<%     struct << Hash[*keys.zip(values).flatten] %>
+<%   end%>
+<%=  JSON.pretty_generate struct %>
+<% else %>
+  <div style="font-size:160%"><strong>Process CPU Usage</strong></div>
+<table>
+  <thead>
+    <tr>
+      <th>Process&nbsp;ID</th>
+      <th>User</th>
+      <th>CPU&nbsp;%</th>
+      <th>Memory&nbsp;%</th> 
+      <th>State</th>
+      <th>CPU&nbsp;Time</th>
+      <th>Command</th>
+    </tr>
+  </thead>
+  <tbody>
+<% content.split("\n")[1..-1].reverse.each do |process| %>
+<%   process = process.split %>
+    <tr>
+      <td><%= process[0..5].join('</td><td>') %></td>
+      <td><span style="font-size:80%"><%= process[6..-1].join(' ')%></span></td>
+    </tr>
+<% end %>
+  </tbody>
+</table>
+<% end %>

@@ -1,0 +1,95 @@
+#!/usr/bin/env ruby
+
+require 'fileutils'
+include FileUtils
+
+application_root = File.expand_path(File.join(File.dirname(File.expand_path(__FILE__)),'..'))
+
+name = File.basename(__FILE__)
+
+graphs = "#{application_root}/graphs"
+reports = "#{application_root}/views/reports"
+
+def list(path)
+  Dir["#{path}/*"].sort.each do |file|
+    name = File.basename(file)
+    if /.*.erb.disabled$/ =~ file
+      puts File.basename(name,'.erb.disabled') << ' (disabled)'
+    elsif /.*.erb$/ =~ file
+      puts File.basename(name,'.erb')
+    end
+  end
+end
+
+def enable(component,name)
+  path = File.join(component,name)
+  if File.exists? "#{path}.erb.disabled"
+    mv "#{path}.erb.disabled", "#{path}.erb"
+    exit 0
+  elsif File.exists? "#{path}.erb"
+    puts "Error: '#{name}' already enabled."
+    exit 1
+  else
+    puts "Error '#{name}' not existing."
+    exit 1
+  end 
+end
+
+def disable(component,name)
+  path = File.join(component,name)
+  if File.exists? "#{path}.erb"
+    mv "#{path}.erb", "#{path}.erb.disabled"
+    exit 0
+  elsif File.exists? "#{path}.erb.disabled"
+    puts "Error: '#{name}' already disabled."
+    exit 1
+  else
+    puts "Error: '#{name}' not existing."
+    exit 1
+  end
+end
+
+case ARGV[0]
+when 'graph'
+  case ARGV[1]
+  when 'list' 
+    list(graphs)
+  when 'enable'
+    if ARGV[2].nil?
+      puts "#{name} graph enable [name]"
+    else
+      enable(graphs,ARGV[2]) 
+    end
+  when 'disable'
+    if ARGV[2].nil?
+      puts "#{name} graph disable [name]"
+    else
+      disable(graphs,ARGV[2])
+    end
+  else
+    puts "#{name} graph list|enable|disable" 
+  end
+when 'report'
+  case ARGV[1]
+  when 'list'
+    list(reports)
+  when 'enable'
+    if ARGV[2].nil?
+      puts "#{name} report enable [name]"
+    else
+      enable(reports,ARGV[2]) 
+    end
+  when 'disable'
+    if ARGV[2].nil?
+      puts "#{name} report disable [name]"
+    else
+      disable(reports,ARGV[2])
+    end
+  else
+    puts "#{name} report list|enable|disable" 
+  end
+else
+  puts "#{name} graph|report"
+end
+
+

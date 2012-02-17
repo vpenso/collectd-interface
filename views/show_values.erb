@@ -1,0 +1,11 @@
+<html>
+<head>
+</head>
+<body>
+  <table> 
+     <% for entry in @data %>
+     <tr><td><b><%= entry[0] %></b></td><td><%= entry[1..-1].join(' ')%></td></tr>
+     <% end %>
+  </table>
+</body>
+</html>

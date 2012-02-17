@@ -1,0 +1,21 @@
+<html>
+  <head>
+    <%= erb "template/header".to_sym %>
+    <title><%= @target.capitalize %></title>
+  </head>
+  <body>
+    <form action="/<%= @target %>" method='get' style="top"> 
+      <%= erb "template/navigation".to_sym %>
+      <div id="toggle" class="options">
+        <%= erb "template/options/#{@target}".to_sym %>
+        <div class="submitter">
+          <button class="primary" type="submit"/>Show</button>
+          <button type="button" onClick="toggleCancel()">Cancel</button>
+        </div>
+      </div>
+    </form>
+    <div class='content'>
+      <%= yield %>
+    </div>
+  </body>
+</html>

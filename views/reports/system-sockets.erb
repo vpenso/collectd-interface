@@ -1,0 +1,32 @@
+<% content = `ss -ar` %>
+<% if @type == 'text' then %>
+<%=  content %>
+<% elsif @type == 'json' %>
+<%   content = content.split("\n")[1..-1] %>
+<%   keys = ['state','recive_queue','send_queue','local_address','peer_address'] %>
+<%   require 'json'; struct = Array.new %>
+<%   content.each do |values| %>
+<%     struct << Hash[*keys.zip(values.split).flatten] %>
+<%   end %>
+<%=  JSON.pretty_generate struct %>
+<% else %>
+<div style="font-size:160%"><strong>System Sockets</strong></div>
+<table>
+  <thead>
+    <tr>
+      <th>State</td>
+      <th>Recv-Q</th>
+      <th>Send-Q</th>
+      <th>Local Address:Port</th>
+      <th>Peer Address:Port</th>
+    </tr>
+  </thead>
+  <tbody>
+<%  content.split("\n")[1..-1].each do |line| %>
+    <tr>
+      <td><%=   line.split.join("</td>\n<td>") %></td>
+    </tr>
+<%  end %>
+  </tbody>
+</table>
+<% end %>

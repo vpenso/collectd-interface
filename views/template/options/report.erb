@@ -1,0 +1,11 @@
+<ul>
+  <li> 
+    <div class="label">Select reports to display:</div>
+    <select name='display'>
+      <option value='all'>all</option>
+      <% @reports.each do |name| %>
+      <option value='<%= name %>'><%= name %></option>
+      <% end %>
+    </select>
+  <li>
+</ul>
