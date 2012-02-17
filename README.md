@@ -8,6 +8,8 @@ _Collectd-Interface_ serves a web user-interface to data stored
 by [Collectd](http://collectd.org/). Furthermore it provides REST 
 access to all data.
 
+![Screenshot of User-Interface](https://github.com/vpenso/collectd-interface/raw/master/public/readme/user-interface.png  "Screenshot of the User-Interface")
+
 Installation
 ============
 
@@ -19,6 +21,10 @@ On Debian flavored Linux use:
     apt-get install collectd rrdtool
 
 You will need the [RRDtool](http://oss.oetiker.ch/rrdtool/) too.
+
+Install the Collectd-Interface Gem:
+
+    gem install collectd-interface
 
 Usage
 =====
@@ -56,8 +62,6 @@ applications.
 
 Graph
 -----
-
-![Screenshot of User-Interface](https://github.com/vpenso/collectd-interface/raw/master/public/readme/user-interface.png  "Screenshot of the User-Interface")
 
 You can select individual graphs using the drop-down menu followed by 
 clicking the "Show" button. In case you just want to have the image, to
