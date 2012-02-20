@@ -141,6 +141,7 @@ class CollectdInterface < Sinatra::Base
       graphs[File.basename(file,'.erb')] = file 
     end
     set :plugins, graphs
+
     # List all RRD files available
     rrd_values = Array.new
     Dir["#{settings.rrd_path}/**/*.rrd"].each do |file|
@@ -156,7 +157,6 @@ class CollectdInterface < Sinatra::Base
     reports = Hash.new
     Dir["#{settings.root}/views/reports/*.erb"].each { |f| reports[File.basename(f,'.erb')] = f }
     set :reports, reports
-
   end
 
   get '/data' do
@@ -254,7 +254,12 @@ class CollectdInterface < Sinatra::Base
     end
   end
 
+  ##
+  ## Web-Interface to all graphs generated from the Collectd RRD files
+  ##
   get '/graph' do
+    # Clients can discover a list of available graphs using the 
+    # format parameters
     if params.has_key? 'format'
       graph_list = settings.plugins.keys.sort.map! { |g| "/graph/#{g}" }
       if params['format'] == 'json'
@@ -264,17 +269,28 @@ class CollectdInterface < Sinatra::Base
         content_type :text
         graph_list.join("\n")
       end
+    # By default the web-interface will be displayed 
     else
       # default parameters
       params['last'] = '12h' unless params.has_key?('last')
       params['image'] = 'png' unless params.has_key?('image')
-      @display = params.has_key?('display') ? params['display'] : ['all'] 
-      # this parameters should not be inherited to /graph/*
+      # display only a subset of the graphs by default
+      unless params.has_key?('display')
+        params['display'] = [ 'cpus', 'memory', 'load', ]
+      end
+      # pass the list of graphs to display into the template
+      @display = params['display']
+      # remove it from the parameter list
       params.delete('display') if params.has_key?('display')
-      @graphs = settings.plugins
+      # all other parameters will be appended for the graph
+      # generation.
       p = Array.new; params.each_pair { |k,v| p << "#{k}=#{v}" }
       @args = p.join('&')
+      # list of all available graphs for the drop down menu
+      @graphs = settings.plugins
+      # identifier for the template
       @target = 'graph'
+      # render the templates
       erb :graph, :layout => "template/default".to_sym
     end
   end
@@ -352,13 +368,7 @@ class CollectdInterface < Sinatra::Base
     redirect '/graph'
   end
 
-  get '/help' do
-    @target = 'readme'
-    erb :readme, :layout => "template/default".to_sym
-  end
-
-  error do
-    flash[:error] = env['sinatra.error'].to_s
+  error 404 do
     redirect '/'
   end
 

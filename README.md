@@ -5,7 +5,7 @@ Description
 ===========
 
 _Collectd-Interface_ provides a web user-interface to data stored 
-by [Collectd](http://collectd.org/). Furthermore it serves a REST 
+by Collectd. Furthermore it serves a REST 
 interface to all RRD files of Collectd.
 
 ![Screenshot of User-Interface](https://github.com/vpenso/collectd-interface/raw/master/public/readme/user-interface.png  "Screenshot of the User-Interface")
@@ -13,16 +13,16 @@ interface to all RRD files of Collectd.
 Installation
 ============
 
-Download and install Collectd following the instructions 
+Download and install [Collectd](http://collectd.org/) following the instructions 
 from the developers. 
 
 On Debian flavored Linux use:
 
     apt-get install collectd rrdtool
 
-You will need the [RRDtool](http://oss.oetiker.ch/rrdtool/) too.
+You will need [RRDtool](http://oss.oetiker.ch/rrdtool/) too.
 
-Install the Collectd-Interface Gem:
+Install the Collectd-Interface RubyGem:
 
     gem install collectd-interface
 
