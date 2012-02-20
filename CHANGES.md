@@ -1,4 +1,4 @@
-## 0.2.0
+## 0.2.0 (released 20 Feb. 2012)
 
 * Moving graphs into views directory.
 * Rendering rrdtool commands with the Sinatra 
