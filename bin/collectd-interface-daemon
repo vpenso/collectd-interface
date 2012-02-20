@@ -333,11 +333,10 @@ class CollectdInterface < Sinatra::Base
       end
     # Render a HTML representation of all/a single report(s)
     else
-      if params.has_key? 'display' and params['display'] != 'all'
-        @display = params['display']
-      else
-        @display = 'all'
+      unless params.has_key? 'display'
+        params['display'] = 'disk-free'
       end
+      @display = params['display']
       @target = 'report'
       erb :report, :layout => "template/default".to_sym
     end
