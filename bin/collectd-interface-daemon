@@ -137,7 +137,7 @@ class CollectdInterface < Sinatra::Base
     
     # Load all graphic plug-ins available 
     graphs = Hash.new
-    Dir["#{settings.root}/graphs/*.erb"].each do |file|
+    Dir["#{settings.root}/views/graphs/*.erb"].each do |file|
       graphs[File.basename(file,'.erb')] = file 
     end
     set :plugins, graphs
@@ -299,7 +299,7 @@ class CollectdInterface < Sinatra::Base
     unless settings.plugins.has_key? path
       redirect '/'
     else
-      color = {
+      @color = {
         :red_light => '#FF000044', :red_dark => '#FF0000AA',
         :green_light => '#00F00022', :green_dark => '#00F000AA',
         :yellow_light => '#FFFF0022', :yellow_dark => '#FFFF00AA',
@@ -308,14 +308,14 @@ class CollectdInterface < Sinatra::Base
         :cyan_light => '#00FFFF22', :cyan_dark => '#00FFFFAA',
         :purple_light => '#FF00FF22', :purple_dark => '#FF00FFAA'
       }
-      type = params.has_key?('image') ? params['image'] : 'png'
-      last = params.has_key?('last') ? params['last'] : '10800s'
-      target = %Q[#{settings.public_folder}/images/#{path}.#{type}]
-      rrd_path = settings.rrd_path
-      command = ERB.new(File.read(settings.plugins[path])).result(binding)
+      @type = params.has_key?('image') ? params['image'] : 'png'
+      @last = params.has_key?('last') ? params['last'] : '10800s'
+      @target = %Q[#{settings.public_folder}/images/#{path}.#{@type}]
+      @rrd_path = settings.rrd_path
+      command = erb "graphs/#{path}".to_sym, :layout => :graph_header
       puts command if $DEBUG
       system("#{command} > /dev/null 2>&1")
-      redirect %Q[/images/#{path}.#{type}]
+      redirect %Q[/images/#{path}.#{@type}]
     end
   end
 

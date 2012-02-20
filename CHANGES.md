@@ -1,3 +1,11 @@
+## 0.2.0
+
+* Moving graphs into views directory.
+* Rendering rrdtool commands with the Sinatra 
+  build in engine, instead of using ERB directly.
+* Adding graph header template for all graphs
+  generated.
+
 ## 0.1.1
 
 * Reduce the number graphs displayed by default 
@@ -10,6 +18,6 @@
 * Adding a resolution parameter to the data 
   drop-down menu.
 
-## 0.1.0
+## 0.1.0 (released 17 Feb. 2012)
 
 * First public release of Collectd-Interface.

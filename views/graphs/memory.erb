@@ -1,0 +1,43 @@
+  --title='Memory Utilization' --vertical-label="Bytes" \
+  --alt-autoscale-max --base 1024 --lower-limit=0 \
+  DEF:used_av=<%= @rrd_path %>/memory/memory-used.rrd:value:AVERAGE \
+  DEF:used_max=<%= @rrd_path %>/memory/memory-used.rrd:value:MAX \
+  DEF:used_min=<%= @rrd_path %>/memory/memory-used.rrd:value:MIN \
+  DEF:free_av=<%= @rrd_path %>/memory/memory-free.rrd:value:AVERAGE \
+  DEF:free_max=<%= @rrd_path %>/memory/memory-free.rrd:value:MAX \
+  DEF:free_min=<%= @rrd_path %>/memory/memory-free.rrd:value:MIN \
+  DEF:cach_av=<%= @rrd_path %>/memory/memory-cached.rrd:value:AVERAGE \
+  DEF:cach_max=<%= @rrd_path %>/memory/memory-cached.rrd:value:MAX \
+  DEF:cach_min=<%= @rrd_path %>/memory/memory-cached.rrd:value:MIN \
+  DEF:buff_av=<%= @rrd_path %>/memory/memory-buffered.rrd:value:AVERAGE \
+  DEF:buff_max=<%= @rrd_path %>/memory/memory-buffered.rrd:value:MAX \
+  DEF:buff_min=<%= @rrd_path %>/memory/memory-buffered.rrd:value:MIN \
+  CDEF:used=used_av,used_av,UNKN,IF \
+  CDEF:free=free_av,used_av,free_av,+,UNKN,IF \
+  CDEF:cach=cach_av,used_av,free_av,cach_av,+,+,UNKN,IF \
+  CDEF:buff=buff_av,used_av,free_av,cach_av,buff_av,+,+,+,UNKN,IF \
+  AREA:used_av<%= @color[:red_light] %> \
+  AREA:free_av<%= @color[:green_light] %>::STACK \
+  AREA:cach_av<%= @color[:yellow_light] %>::STACK \
+  AREA:buff_av<%= @color[:blue_light] %>::STACK \
+  LINE1:used<%= @color[:red_dark] %>:"Used  " \
+  GPRINT:used_min:MIN:"Min. %3.0lf %sB " \
+  GPRINT:used_av:AVERAGE:"Avg. %3.0lf %sB" \
+  GPRINT:used_max:MAX:"Max. %3.0lf %sB" \
+  GPRINT:used_av:LAST:"Last %3.0lf %sB" \
+  LINE1:free<%= @color[:green_dark] %>:"Free  " \
+  GPRINT:free_min:MIN:"Min. %3.0lf %sB " \
+  GPRINT:free_av:AVERAGE:"Avg. %3.0lf %sB" \
+  GPRINT:free_max:MAX:"Max. %3.0lf %sB" \
+  GPRINT:free_av:LAST:"Last %3.0lf %sB" \
+  LINE1:cach<%= @color[:yellow_dark] %>:"Cache " \
+  GPRINT:cach_min:MIN:"Min. %3.0lf %sB " \
+  GPRINT:cach_av:AVERAGE:"Avg. %3.0lf %sB" \
+  GPRINT:cach_max:MAX:"Max. %3.0lf %sB" \
+  GPRINT:cach_av:LAST:"Last %3.0lf %sB" \
+  LINE1:buff<%= @color[:blue_dark] %>:"Buffer" \
+  GPRINT:buff_min:MIN:"Min. %3.0lf %sB " \
+  GPRINT:buff_av:AVERAGE:"Avg. %3.0lf %sB" \
+  GPRINT:buff_max:MAX:"Max. %3.0lf %sB" \
+  GPRINT:buff_av:LAST:"Last %3.0lf %sB" 
+

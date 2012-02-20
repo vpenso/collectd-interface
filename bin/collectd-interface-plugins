@@ -7,7 +7,7 @@ application_root = File.expand_path(File.join(File.dirname(File.expand_path(__FI
 
 name = File.basename(__FILE__)
 
-graphs = "#{application_root}/graphs"
+graphs = "#{application_root}/views/graphs"
 reports = "#{application_root}/views/reports"
 
 def list(path)

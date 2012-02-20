@@ -1,0 +1,29 @@
+--title='GridEngine Queue Master' \ 
+--vertical-label="Jobs" \
+--alt-autoscale-max \
+DEF:run_av=<%= @rrd_path %>/gridengine/gridengine_jobs.rrd:running:AVERAGE \
+DEF:run_min=<%= @rrd_path %>/gridengine/gridengine_jobs.rrd:running:MIN \
+DEF:run_max=<%= @rrd_path %>/gridengine/gridengine_jobs.rrd:running:MAX \
+DEF:qu_av=<%= @rrd_path %>/gridengine/gridengine_jobs.rrd:queued:AVERAGE \
+DEF:qu_min=<%= @rrd_path %>/gridengine/gridengine_jobs.rrd:queued:MIN \
+DEF:qu_max=<%= @rrd_path %>/gridengine/gridengine_jobs.rrd:queued:MAX \
+DEF:su_av=<%= @rrd_path %>/gridengine/gridengine_jobs.rrd:suspend:AVERAGE \
+DEF:su_min=<%= @rrd_path %>/gridengine/gridengine_jobs.rrd:suspend:MIN \
+DEF:su_max=<%= @rrd_path %>/gridengine/gridengine_jobs.rrd:suspend:MAX \
+AREA:su_av<%=  @color[:red_light] %> \
+AREA:run_av<%=  @color[:green_light] %> \
+LINE1:qu_av<%= @color[:blue_dark] %>:"Queued " \
+GPRINT:qu_min:MIN:"Min. %6.0lf" \
+GPRINT:qu_av:AVERAGE:"Avg. %6.0lf" \
+GPRINT:qu_max:MAX:"Max. %6.0lf" \
+GPRINT:qu_av:LAST:"Last %6.0lf" \
+LINE1:su_av<%= @color[:red_dark] %>:"Suspend" \
+GPRINT:su_min:MIN:"Min. %6.0lf" \
+GPRINT:su_av:AVERAGE:"Avg. %6.0lf" \
+GPRINT:su_max:MAX:"Max. %6.0lf" \
+GPRINT:su_av:LAST:"Last %6.0lf" \
+LINE1:run_av<%= @color[:green_dark] %>:"Running" \
+GPRINT:run_min:MIN:"Min. %6.0lf" \
+GPRINT:run_av:AVERAGE:"Avg. %6.0lf" \
+GPRINT:run_max:MAX:"Max. %6.0lf" \
+GPRINT:run_av:LAST:"Last %6.0lf" \

@@ -1,0 +1,73 @@
+<% 
+
+lines = String.new
+areas = String.new
+cores = `grep -c processor /proc/cpuinfo`.to_i
+limit = cores*100
+
+if cores > 1
+  cores = "#{cores} cores"
+else
+  cores = "#{cores} core"
+end
+
+def define(name,files,function = "AVERAGE")
+  defs = String.new
+  cdef = "CDEF:#{name}="
+  tail = String.new
+  cpu  = 1
+  files.each do |f|
+    n = "#{name}_#{cpu}"
+    defs << %Q[DEF:#{n}=#{f}:value:#{function} ] 
+    cdef << "#{n},"
+    tail << "+,"
+    cpu += 1
+  end
+  return defs << cdef << tail.chop.chop.chop << ' '
+end
+
+definitions = define('sys_av',Dir["#{@rrd_path}cpu*/cpu-system.rrd"] )
+definitions << define('sys_min',Dir["#{@rrd_path}cpu*/cpu-system.rrd"],'MIN' )
+definitions << define('sys_max',Dir["#{@rrd_path}cpu*/cpu-system.rrd"],'MAX' )
+lines << %Q[LINE1:sys_av#{@color[:green_dark]}:'System\t\t\t\t\t' GPRINT:sys_min:MIN:"Min. %4.0lf" GPRINT:sys_av:AVERAGE:"Avg. %4.0lf" GPRINT:sys_max:MAX:"Max. %4.0lf" GPRINT:sys_av:LAST:'Last %4.0lf'  ]
+
+
+definitions << define('user_av',Dir["#{@rrd_path}cpu*/cpu-user.rrd"] )
+definitions << define('user_min',Dir["#{@rrd_path}cpu*/cpu-user.rrd"],'MIN' )
+definitions << define('user_max',Dir["#{@rrd_path}cpu*/cpu-user.rrd"],'MAX' )
+lines << %Q[LINE1:user_av#{@color[:blue_dark]}:'User\t\t\t\t\t\t\t' GPRINT:user_min:MIN:"Min. %4.0lf" GPRINT:user_av:AVERAGE:"Avg. %4.0lf" GPRINT:user_max:MAX:'Max. %4.0lf' GPRINT:user_av:LAST:'Last %4.0lf' ]
+
+definitions << define('idle_av',Dir["#{@rrd_path}cpu*/cpu-idle.rrd"] )
+definitions << define('idle_min',Dir["#{@rrd_path}cpu*/cpu-idle.rrd"],'MIN' )
+definitions << define('idle_max',Dir["#{@rrd_path}cpu*/cpu-idle.rrd"],'MAX' )
+areas << %Q[AREA:idle_av#F5F5F588 ] 
+lines << %Q[LINE1:idle_av#CCCCCCAA:'Idle\t\t\t\t\t\t\t' GPRINT:idle_min:MIN:"Min. %4.0lf" GPRINT:idle_av:AVERAGE:"Avg. %4.0lf" GPRINT:idle_max:MAX:"Max. %4.0lf" GPRINT:idle_av:LAST:'Last %4.0lf' ]
+
+definitions << define('nice_av',Dir["#{@rrd_path}cpu*/cpu-nice.rrd"] )
+definitions << define('nice_min',Dir["#{@rrd_path}cpu*/cpu-nice.rrd"],'MIN' )
+definitions << define('nice_max',Dir["#{@rrd_path}cpu*/cpu-nice.rrd"],'MAX' )
+lines << %Q[LINE1:nice_av#{@color[:yellow_dark]}:'Nice\t\t\t\t\t\t\t' GPRINT:nice_min:MIN:"Min. %4.0lf" GPRINT:nice_av:AVERAGE:"Avg. %4.0lf" GPRINT:nice_max:MAX:"Max. %4.0lf" GPRINT:nice_av:LAST:'Last %4.0lf' ]
+
+definitions << define('wait_av',Dir["#{@rrd_path}cpu*/cpu-wait.rrd"] )
+definitions << define('wait_min',Dir["#{@rrd_path}cpu*/cpu-wait.rrd"],'MIN' )
+definitions << define('wait_max',Dir["#{@rrd_path}cpu*/cpu-wait.rrd"],'MAX' )
+lines << %Q[LINE1:wait_av#{@color[:orange_dark]}:'Wait (IO)\t\t\t' GPRINT:wait_min:MIN:"Min. %4.0lf" GPRINT:wait_av:AVERAGE:"Avg. %4.0lf" GPRINT:wait_max:MAX:"Max. %4.0lf" GPRINT:wait_av:LAST:"Last %4.0lf" ]
+
+definitions << define('steal_av',Dir["#{@rrd_path}cpu*/cpu-steal.rrd"] )
+definitions << define('steal_min',Dir["#{@rrd_path}cpu*/cpu-steal.rrd"],'MIN' )
+definitions << define('steal_max',Dir["#{@rrd_path}cpu*/cpu-steal.rrd"],'MAX' )
+lines << %Q[LINE1:steal_av#{@color[:red_dark]}:'Steal\t\t\t\t\t\t' GPRINT:steal_min:MIN:"Min. %4.0lf" GPRINT:steal_av:AVERAGE:"Avg. %4.0lf" GPRINT:steal_max:MAX:"Max. %4.0lf" GPRINT:steal_av:LAST:"Last %4.0lf" ]
+
+
+definitions << define('int_av',Dir["#{@rrd_path}cpu*/cpu-interrupt.rrd"] )
+definitions << define('int_min',Dir["#{@rrd_path}cpu*/cpu-interrupt.rrd"],'MIN' )
+definitions << define('int_max',Dir["#{@rrd_path}cpu*/cpu-interrupt.rrd"],'MAX' )
+lines << %Q[LINE1:int_av#{@color[:cyan_dark]}:'IRQ\t\t\t\t\t\t\t\t' GPRINT:int_min:MIN:"Min. %4.0lf" GPRINT:int_av:AVERAGE:"Avg. %4.0lf" GPRINT:int_max:MAX:"Max. %4.0lf" GPRINT:int_av:LAST:"Last %4.0lf" ]
+
+definitions << define('sint_av',Dir["#{@rrd_path}cpu*/cpu-softirq.rrd"] )
+definitions << define('sint_min',Dir["#{@rrd_path}cpu*/cpu-softirq.rrd"],'MIN' )
+definitions << define('sint_max',Dir["#{@rrd_path}cpu*/cpu-softirq.rrd"],'MAX' )
+lines << %Q[LINE1:sint_av#{@color[:purple_dark]}:'IRQ (soft)\t\t\t' GPRINT:sint_min:MIN:"Min. %4.0lf" GPRINT:sint_av:AVERAGE:"Avg. %4.0lf" GPRINT:sint_max:MAX:"Max. %4.0lf" GPRINT:sint_av:LAST:"Last %4.0lf" ]
+
+
+%> --title="CPU Usage (<%= cores %>)" --vertical-label="Jiffies" --units-exponent=k --lower-limit=0 --legend-position=south --force-rules-legend --slope-mode --upper-limit <%= limit %>  <%= definitions %> <%= areas %> <%= lines %>

@@ -1,0 +1,23 @@
+--title='Network Traffic Interface "lo"' \
+--vertical-label="Bits" \
+--alt-autoscale-max \
+DEF:rx_av=<%= @rrd_path %>/interface/if_octets-lo.rrd:rx:AVERAGE \
+DEF:rx_min=<%= @rrd_path %>/interface/if_octets-lo.rrd:rx:MIN \
+DEF:rx_max=<%= @rrd_path %>/interface/if_octets-lo.rrd:rx:MAX \
+DEF:tx_av=<%= @rrd_path %>/interface/if_octets-lo.rrd:tx:AVERAGE \
+DEF:tx_min=<%= @rrd_path %>/interface/if_octets-lo.rrd:tx:MIN \
+DEF:tx_max=<%= @rrd_path %>/interface/if_octets-lo.rrd:tx:MAX \
+AREA:rx_max<%= @color[:green_light] %> \
+AREA:rx_min#ffffff \
+AREA:tx_max<%= @color[:blue_light] %> \
+AREA:tx_min#ffffff \
+LINE1:rx_av<%= @color[:green_dark] %>:"Receive " \
+GPRINT:rx_min:MIN:"Min. %3.0lf%sb" \
+GPRINT:rx_av:AVERAGE:"Avg. %3.0lf%sb" \
+GPRINT:rx_max:MAX:"Max. %3.0lf%sb" \
+GPRINT:rx_av:LAST:"Last %3.0lf%sb" \
+LINE1:tx_av<%= @color[:blue_dark] %>:"Transmit" \
+GPRINT:tx_min:MIN:"Min. %3.0lf%sb" \
+GPRINT:tx_av:AVERAGE:"Avg. %3.0lf%sb" \
+GPRINT:tx_max:MAX:"Max. %3.0lf%sb" \
+GPRINT:tx_av:LAST:"Last %3.0lf%sb" \

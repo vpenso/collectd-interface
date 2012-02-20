@@ -1,0 +1,32 @@
+  --title="System Load" --vertical-label="Process Wait" \
+  --alt-autoscale-max --units-exponent=k --lower-limit=0 \
+  DEF:short_av=<%= @rrd_path %>/load/load.rrd:shortterm:AVERAGE \
+  DEF:short_max=<%= @rrd_path %>/load/load.rrd:shortterm:MAX \
+  DEF:short_min=<%= @rrd_path %>/load/load.rrd:shortterm:MIN \
+  DEF:mid_av=<%= @rrd_path %>/load/load.rrd:midterm:AVERAGE \
+  DEF:mid_max=<%= @rrd_path %>/load/load.rrd:midterm:MAX \
+  DEF:mid_min=<%= @rrd_path %>/load/load.rrd:midterm:MIN \
+  DEF:long_av=<%= @rrd_path %>/load/load.rrd:longterm:AVERAGE \
+  DEF:long_max=<%= @rrd_path %>/load/load.rrd:longterm:MAX \
+  DEF:long_min=<%= @rrd_path %>/load/load.rrd:longterm:MIN \
+  AREA:short_max<%= @color[:red_light] %> \
+  AREA:short_min#ffffff \
+  LINE1:mid_min<%= @color[:green_light] %> \
+  LINE1:mid_max<%= @color[:green_light] %> \
+  LINE1:mid_min<%= @color[:blue_light] %> \
+  LINE1:mid_max<%= @color[:blue_light] %> \
+  LINE1:short_av<%= @color[:red_dark] %>:"1 Minute " \
+  GPRINT:short_min:MIN:"Min. %3.2lf" \
+  GPRINT:short_av:AVERAGE:"Avg. %3.2lf" \
+  GPRINT:short_max:MAX:"Max. %3.2lf" \
+  GPRINT:short_av:LAST:"Last %3.2lf" \
+  LINE1:mid_av<%= @color[:green_dark] %>:"5 Minute " \
+  GPRINT:mid_min:MIN:"Min. %3.2lf" \
+  GPRINT:mid_av:AVERAGE:"Avg. %3.2lf" \
+  GPRINT:mid_max:MAX:"Max. %3.2lf" \
+  GPRINT:mid_av:LAST:"Last %3.2lf" \
+  LINE1:long_av<%= @color[:blue_dark] %>:"15 Minute" \
+  GPRINT:long_min:MIN:"Min. %3.2lf" \
+  GPRINT:long_av:AVERAGE:"Avg. %3.2lf" \
+  GPRINT:long_max:MAX:"Max. %3.2lf" \
+  GPRINT:long_av:LAST:"Last %3.2lf" \
