@@ -7,6 +7,8 @@
 * Redirect 404 page not found to main page.
 * Report page displays only local storage by 
   default.
+* Adding a resolution parameter to the data 
+  drop-down menu.
 
 ## 0.1.0
 
