@@ -1,4 +1,4 @@
---title='GridEngine Queue Master' \ 
+--title="GridEngine Queue Master" \
 --vertical-label="Jobs" \
 --alt-autoscale-max \
 DEF:run_av=<%= @rrd_path %>/gridengine/gridengine_jobs.rrd:running:AVERAGE \

@@ -1,3 +1,9 @@
+## 0.2.1 
+
+* [BUG] Removing duplicate graph templates.
+* [BUG] Removing broken white space from 
+  GridEngine plugin.
+
 ## 0.2.0 (released 20 Feb. 2012)
 
 * Moving graphs into views directory.
