@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = %q{collectd-interface}
-  s.version = "0.2.0"
+  s.version = "0.2.1"
   s.authors = ["Victor Penso"]
   s.date = '2012-02-20'
   s.homepage = 'https://github.com/vpenso/collectd-interface'

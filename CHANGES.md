@@ -1,10 +1,10 @@
-## 0.2.1 
+## 0.2.1 (released 20 Feb. 2012)
 
 * [BUG] Removing duplicate graph templates.
 * [BUG] Removing broken white space from 
   GridEngine plugin.
 
-## 0.2.0 (released 20 Feb. 2012)
+## 0.2.0 
 
 * Moving graphs into views directory.
 * Rendering rrdtool commands with the Sinatra 
