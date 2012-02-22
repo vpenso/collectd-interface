@@ -73,13 +73,24 @@ the graph is generated the caller will be redirected to `/image/`.
 **Parameters**
 
 It is possible to limit the time-frame of the graph using the option
-`last=10h`(us (m)inutes,(d)ays or (w)eeks). 
+_start_ and _end_. They are available in the drop-down menu, and can
+be defined using the input fields or by appending them as URL 
+parameters.
 
-This simple example:
+Following URLs demonstrate the selection of a specific graph with 
+parameters to define a time-frame:
 
-    http://.../memory?last=1w&image=svg
+    http://.../load?start=end-1d&end=now-2h
+    http://.../cpus?start=20120217&end=20120220
+    http://.../memory?start=end-48h&end=20120218
+    http://.../network-eth0?start=20120217&end=now&image=svg
 
-Requests an SVG image with the memory graph for the last week.
+**Plugins**
+
+Each graph is generated from a plugin in `views/graphs/`. This 
+directory is scanned when the Collectd-Interface daemon is started, 
+and each ERB-template (`*.erb`) is registered. Enable/disable 
+certain plugins using the command `collectd-interface-plugins`. 
 
 Data
 ----
