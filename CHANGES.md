@@ -1,3 +1,13 @@
+## 0.3.0
+
+* New graph parameters 'start' and 'end' replace
+  'last'. By defaults the are set to show the
+  last 12 hours.
+* The graph drop-down menu allows users to set 
+  start and end time. If the input is male 
+  formated `rrdtool graph` will show the last 
+  12 hours with best possible resolution.
+
 ## 0.2.2
 
 * [BUG] Removing broken white space from 

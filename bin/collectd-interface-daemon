@@ -271,8 +271,11 @@ class CollectdInterface < Sinatra::Base
       end
     # By default the web-interface will be displayed 
     else
-      # default parameters
-      params['last'] = '12h' unless params.has_key?('last')
+      # by default each graph presents the last 12 hours
+      unless params.has_key? 'start' and params.has_key? 'end'
+        params['start'] = 'end-12h'
+        params['end'] = 'now' 
+      end
       params['image'] = 'png' unless params.has_key?('image')
       # display only a subset of the graphs by default
       unless params.has_key?('display')
@@ -309,7 +312,13 @@ class CollectdInterface < Sinatra::Base
         :purple_light => '#FF00FF22', :purple_dark => '#FF00FFAA'
       }
       @type = params.has_key?('image') ? params['image'] : 'png'
-      @last = params.has_key?('last') ? params['last'] : '10800s'
+      if params.has_key? 'start' and params.has_key? 'end'
+        @start = params['start']
+        @end = params['end']
+      else
+        @start = 'end-24h'
+        @end = 'now'
+      end
       @target = %Q[#{settings.public_folder}/images/#{path}.#{@type}]
       @rrd_path = settings.rrd_path
       command = erb "graphs/#{path}".to_sym, :layout => :graph_header
