@@ -1,8 +1,15 @@
+## 0.2.2
+
+* [BUG] Removing broken white space from 
+  processes graph plugin.
+* Prevent output from rrdtool graph in log file 
+  unless in debug mode.
+
 ## 0.2.1 (released 20 Feb. 2012)
 
 * [BUG] Removing duplicate graph templates.
 * [BUG] Removing broken white space from 
-  GridEngine plugin.
+  gridengine graph plugin.
 
 ## 0.2.0 
 

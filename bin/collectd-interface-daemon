@@ -313,8 +313,9 @@ class CollectdInterface < Sinatra::Base
       @target = %Q[#{settings.public_folder}/images/#{path}.#{@type}]
       @rrd_path = settings.rrd_path
       command = erb "graphs/#{path}".to_sym, :layout => :graph_header
-      puts command if $DEBUG
-      system("#{command} > /dev/null 2>&1")
+      puts command.chomp if $DEBUG
+      output = `#{command} > /dev/null 2>&1`
+      puts output.chomp if $DEBUG and not output.empty?
       redirect %Q[/images/#{path}.#{@type}]
     end
   end
