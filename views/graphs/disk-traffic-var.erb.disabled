@@ -1,6 +1,6 @@
 <% name = '/var'%>
 <% device = `df -l #{name} | grep '/dev/'`.split[0].split('/')[-1] %>
---title='Disk Traffic "<%= name %>"' \ 
+--title='Disk Traffic "<%= name %>"' \
 --vertical-label="Bytes" \
 --alt-autoscale-max --base 1024 \
 DEF:read_av=<%= @rrd_path %>disk-<%= device %>/disk_octets.rrd:read:AVERAGE \
