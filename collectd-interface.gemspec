@@ -15,7 +15,6 @@ Gem::Specification.new do |s|
     'collectd-interface-plugins'
   ]
   s.add_dependency('sinatra', '>= 1.3')
-  s.add_dependency('maruku', '>= 0.6')
   s.requirements << 'Collectd  (http://collectd.org)'
   s.files = Dir.glob('**/*/**')
   s.has_rdoc = false

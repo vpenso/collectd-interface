@@ -1,0 +1,11 @@
+--title="Users" \
+--vertical-label="Number" \
+--lower-limit=0 \
+--alt-autoscale-max \
+DEF:users_max=<%= @rrd_path %>/users/users.rrd:users:MAX \
+DEF:users_min=<%= @rrd_path %>/users/users.rrd:users:MIN \
+AREA:users_max<%= @color[:blue_light] %> \
+AREA:users_min#ffffff \
+LINE1:users_max<%= @color[:blue_dark] %>:"Users" \
+GPRINT:users_min:MIN:"Min %3.0lf" \
+GPRINT:users_max:MAX:"Max %3.0lf"

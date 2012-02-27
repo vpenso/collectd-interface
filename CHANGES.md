@@ -1,3 +1,11 @@
+## 0.3.1
+
+* [BUG] fixing whitespace after line-feet in 
+  graph templates.
+* Strip kernel tasks from the report of CPU
+  usage per process.
+* Adding users graph template.
+
 ## 0.3.0
 
 * New graph parameters 'start' and 'end' replace

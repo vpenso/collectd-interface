@@ -29,9 +29,11 @@
   <tbody>
 <% content.split("\n")[1..-1].reverse.each do |process| %>
 <%   process = process.split %>
+<%   command = process[6..-1].join(' ') %>
+<%   next if command =~ /^\[.*/%>
     <tr>
       <td><%= process[0..5].join('</td><td>') %></td>
-      <td><span style="font-size:80%"><%= process[6..-1].join(' ')%></span></td>
+      <td><span style="font-size:80%"><%= command %></span></td>
     </tr>
 <% end %>
   </tbody>
