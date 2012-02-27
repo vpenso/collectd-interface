@@ -1,0 +1,35 @@
+<% def i_num(file) %>
+<%   File.basename(file,'.rrd').gsub(/^irq\-/,'') %>
+<% end %>
+--title="Interrupts" \
+--vertical-label="IRQs\s" \
+--lower-limit=0 \
+--alt-autoscale-max \
+<% files = Dir["#{@rrd_path}/irq/irq-*.rrd"].sort do |a,b| %>
+<%   i_num(a).to_i <=> i_num(b).to_i %>
+<% end %>
+<% files.each do |file| %>
+<%   i = i_num(file) %>
+DEF:irq_<%= i %>_max=<%= file %>:value:MAX \
+DEF:irq_<%= i %>_avg=<%= file %>:value:AVERAGE \
+DEF:irq_<%= i %>_min=<%= file %>:value:MIN \
+<% end %>
+<% tail = Array.new %>
+<% (files.length - 1 ).times { tail << '+' } %>
+<%# (files.length - 2 ).times { tail << 'UNKN,IF' }%>
+CDEF:irqs_max=<%= (files.map { |f| "irq_" + i_num(f) + "_max,UN,0,"  "irq_" + i_num(f) + "_max,IF"  }).join(',') %>,<%= tail.join(',') %> \
+CDEF:irqs_avg=<%= (files.map { |f| "irq_" + i_num(f) + "_avg,UN,0,"  "irq_" + i_num(f) + "_avg,IF"  }).join(',') %>,<%= tail.join(',') %> \
+CDEF:irqs_min=<%= (files.map { |f| "irq_" + i_num(f) + "_min,UN,0,"  "irq_" + i_num(f) + "_min,IF"  }).join(',') %>,<%= tail.join(',') %> \
+AREA:irqs_max<%= @color[:blue_light] %> \
+AREA:irqs_min#ffffff \
+LINE1:irqs_avg<%= @color[:blue_dark] %>:"Sum    \t\t\t\t\t\t\t\t\t\t\t\t\t" \
+GPRINT:irqs_max:MIN:"Min. %3.0lf" \
+GPRINT:irqs_avg:AVERAGE:"Avg. %3.0lf" \
+GPRINT:irqs_max:MAX:"Max. %3.0lf" \
+<% files.each do |file| %>
+<%   i = i_num(file) %>
+LINE1:irq_<%= i %>_max#ffffff00:"IRQ <%= i %> \t\t\t\t\t\t\t\t\t\t\t\t\t" \
+GPRINT:irq_<%= i %>_min:MIN:"Min. %3.0lf" \
+GPRINT:irq_<%= i %>_avg:AVERAGE:"Avg. %3.0lf" \
+GPRINT:irq_<%= i %>_max:MAX:"Max. %3.0lf" \
+<% end %>
