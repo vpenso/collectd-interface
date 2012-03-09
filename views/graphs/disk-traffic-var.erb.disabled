@@ -1,4 +1,4 @@
-<% name = '/var'%>
+<% name = '/var' %>
 <% device = `df -l #{name} | grep '/dev/'`.split[0].split('/')[-1] %>
 --title='Disk Traffic "<%= name %>"' \
 --vertical-label="Bytes" \
@@ -22,4 +22,4 @@ LINE1:write_av<%= @color[:blue_dark] %>:"Write\t\t" \
 GPRINT:write_min:MIN:"Min. %3.0lf%sB" \
 GPRINT:write_av:AVERAGE:"Avg. %3.0lf%sB" \
 GPRINT:write_max:MAX:"Max. %3.0lf%sB" \
-GPRINT:write_av:LAST:"Last %3.0lf%sB" \
+GPRINT:write_av:LAST:"Last %3.0lf%sB" 

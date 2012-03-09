@@ -4,7 +4,7 @@
   graph templates.
 * Strip kernel tasks from the report of CPU
   usage per process.
-* Adding users graph template.
+* Adding users/IRQs graph template.
 
 ## 0.3.0
 
