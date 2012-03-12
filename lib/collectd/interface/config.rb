@@ -72,10 +72,26 @@ module Collectd
       end
       def find_reports
         self['reports'] = Hash.new
-        Dir["#{self.root}/views/reports/*.erb"].each do |report|
-          self['reports'][File.basename(report,'.erb')] = report
+        _path = File.join(self.root,'views','reports')
+        Dir["#{_path}/**/*.erb"].each do |file|
+          # strip the template suffix
+          _name = file.gsub(/\.erb/,'')
+          # remove the path to the graph template directory
+          _name = _name.gsub(%r<#{_path}>,'')[1..-1]
+          # strip the application path from the file name
+          _file = file.gsub(%r<#{_path}/>,'').gsub(/\.erb/,'')
+          # path to the template file
+          if _name.include?('/')
+            @config = true
+            _supports = JSON.parse(ERB.new(File.read(file)).result(binding))
+            _supports.each do |path|
+               self['reports']["#{_name}/#{path}"] = _file
+            end
+          else
+            self['reports'][_name] = _file
+          end
         end
-
+        puts self['reports']
       end
     end
   end

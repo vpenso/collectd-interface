@@ -1,0 +1,62 @@
+<% if @config %>
+<%   __mounts = Array.new %>
+<%   __devices = `df -l | grep '^/dev/'` %>
+<%   __devices.split("\n").each do |dev| %>
+<%     __mount = dev.split(' ')[-1] %>
+<%     if __mount == '/' %>
+<%       __mounts << 'root' %>
+<%     else %>
+<%       __mounts << __mount.gsub(/^\//,'') %>
+<%     end %>
+<%   end %>
+<%=  JSON.generate(__mounts) %>
+<% else %>
+<%   if @param == 'root' %>
+<%     __path = '/' %>
+<%   else %>
+<%     __path = "/#{@param}" %>
+<%   end %>
+<%   __content = `lsof -u ^root -S2 #{__path} | tr -s ' ' | cut -d' ' -f2-4,9-` %>
+<%   if @type == 'text' %>
+<%=    __content %>
+<%   elsif @type == 'json' %>
+<%     require 'json' %>
+<%     __struct = Array.new %>
+<%     __content = __content.split("\n")[1..-1] %>
+<%     __keys = ['pid','user','state','file'] %>
+<%     unless __content.empty? %>
+<%       __content.each do |file| %>
+<%         file = file.split %>
+<%          values = file[0..2] %>
+<%          values << file[3..-1].join(' ') %>
+<%         __struct <<  Hash[*__keys.zip(values).flatten] %>
+<%       end %>
+<%     end %>
+<%=    JSON.pretty_generate __struct %>
+<%   else %>
+<div style="font-size:160%"><strong>Open Files in <%= __path %></strong></div>
+<table>
+  <thead>
+    <tr>
+      <td>Process&nbsp;ID</td>
+      <td>User</td>
+      <td>State</td>
+      <td>File</td>
+    </tr>
+  </thead>
+  <tbody>
+<%     if __content.empty? %>
+         <tr><td>none</td><td>none</td><td>none</td><td>none</td></tr>
+<%     else %>
+<%       __content.split("\n")[1..-1].each do |file| %>
+<%         file = file.split%>
+             <tr>
+               <td><%= file[0..2].join('</td><td>') %></td>
+               <td><span style="font-size:80%"><%= file[3..-1].join(' ')%></span></td>
+             </tr>
+<%       end %>
+<%     end %>
+  </tbody>
+</table>
+<%   end %>
+<% end %>

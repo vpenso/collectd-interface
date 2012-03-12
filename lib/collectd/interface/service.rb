@@ -3,6 +3,7 @@ require 'sinatra/base'
 require 'collectd/interface/config'
 require 'collectd/interface/service/data'
 require 'collectd/interface/service/graph'
+require 'collectd/interface/service/report'
 
 module Collectd
   module Interface

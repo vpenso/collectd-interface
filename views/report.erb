@@ -1,6 +1,6 @@
 <ul style='list-style-type:none; padding-left:0'>
 <% if @display == 'all' %>
-<%   for val in @reports %>
+<%   for val in @templates %>
   <li>
 <%=    erb("/reports/#{val}".to_sym)  %>
 <%     url = "/report/#{val}?format=json" %>

@@ -1,3 +1,8 @@
+## 0.5.0
+
+* Reimplementation of Collect-Interface.
+* Supporting URI parameters in graph an report plug-ins. 
+
 ## 0.3.1
 
 * [BUG] fixing whitespace after line-feet in 
