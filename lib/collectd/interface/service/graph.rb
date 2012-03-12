@@ -1,4 +1,6 @@
 require 'sinatra/base'
+require 'fileutils'
+
 module Collectd
   module Interface
     class Service < Sinatra::Base
@@ -46,34 +48,16 @@ module Collectd
         end
       end
 
-      get '/graph/network/*' do |name|
-        if name.empty?
-          
-        else
-          @name = name
-          @type = params.has_key?('image') ? params['image'] : 'png'
-          if params.has_key? 'start' and params.has_key? 'end'
-            @start = params['start']
-            @end = params['end']
-          else
-            @start = 'end-24h'
-            @end = 'now'
-          end
-          @rrd_path = settings.rrd_path + '/'
-          @path = "/images/network-#{@name}.#{@type}"
-          @target = settings.public_folder + @path
-          command = erb :"network/interface", :layout => :graph_header
-          puts command.chomp if $DEBUG
-          output = `#{command} > /dev/null 2>&1`
-          puts output.chomp if $DEBUG and not output.empty?
-          redirect @path
-        end
-      end
-
       get '/graph/*' do |path|
         unless settings.graphs.has_key? path
           redirect '/'
         else
+          # name of the template use to render the graph
+          _template = settings.graphs[path]
+          # path to the public directory to store the rendered image
+          _target_path = File.dirname(File.join(settings.public_folder,'images',path))
+          FileUtils.mkdir_p(_target_path) unless File.directory? _target_path 
+          # variables available to the plug-in
           @color = {
             :red_light => '#FF000044', :red_dark => '#FF0000AA',
             :green_light => '#00F00022', :green_dark => '#00F000AA',
@@ -91,12 +75,18 @@ module Collectd
             @start = 'end-24h'
             @end = 'now'
           end
+          # name of the file to store the graph image into
           @target = %Q[#{settings.public_folder}/images/#{path}.#{@type}]
+          # location of the Collectd RRD files
           @rrd_path = settings.rrd_path + '/'
-          command = erb "graphs/#{path}".to_sym, :layout => :graph_header
+          # last value of the URI path is parameter to the template
+          @param = path.split('/')[-1]
+          # run the plug-in the generate to image
+          command = erb :"graphs/#{_template}", :layout => :graph_header
           puts command.chomp if $DEBUG
           output = `#{command} > /dev/null 2>&1`
           puts output.chomp if $DEBUG and not output.empty?
+          # redirect the client to the rendered image
           redirect %Q[/images/#{path}.#{@type}]
         end
       end
