@@ -3,20 +3,13 @@
 require 'fileutils'
 include FileUtils
 
-application_root = File.expand_path(File.join(File.dirname(File.expand_path(__FILE__)),'..'))
-
-name = File.basename(__FILE__)
-
-graphs = "#{application_root}/views/graphs"
-reports = "#{application_root}/views/reports"
-
 def list(path)
-  Dir["#{path}/*"].sort.each do |file|
-    name = File.basename(file)
+  Dir["#{path}/**/*"].sort.each do |file|
+    _name = file.gsub(%r<#{path}>,'')[1..-1]
     if /.*.erb.disabled$/ =~ file
-      puts File.basename(name,'.erb.disabled') << ' (disabled)'
+      puts _name.gsub(/\.erb\.disabled/,'') << ' (disabled)'
     elsif /.*.erb$/ =~ file
-      puts File.basename(name,'.erb')
+      puts _name.gsub(/\.erb/,'')
     end
   end
 end
@@ -48,6 +41,13 @@ def disable(component,name)
     exit 1
   end
 end
+
+_root = File.expand_path(File.join(File.dirname(File.expand_path(__FILE__)),'..'))
+
+name = File.basename(__FILE__)
+
+graphs = "#{_root}/views/graphs"
+reports = "#{_root}/views/reports"
 
 case ARGV[0]
 when 'graph'

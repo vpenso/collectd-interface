@@ -22,14 +22,14 @@ CDEF:irqs_avg=<%= (files.map { |f| "irq_" + i_num(f) + "_avg,UN,0,"  "irq_" + i_
 CDEF:irqs_min=<%= (files.map { |f| "irq_" + i_num(f) + "_min,UN,0,"  "irq_" + i_num(f) + "_min,IF"  }).join(',') %>,<%= tail.join(',') %> \
 AREA:irqs_max<%= @color[:blue_light] %> \
 AREA:irqs_min#ffffff \
-LINE1:irqs_avg<%= @color[:blue_dark] %>:"Sum    \t\t\t\t\t\t\t\t\t\t\t\t\t" \
-GPRINT:irqs_max:MIN:"Min. %3.0lf" \
-GPRINT:irqs_avg:AVERAGE:"Avg. %3.0lf" \
-GPRINT:irqs_max:MAX:"Max. %3.0lf" \
+LINE1:irqs_avg<%= @color[:blue_dark] %>:"Sum    \t\t\t\t\t\t\t\t\t\t" \
+GPRINT:irqs_max:MIN:"Min. %7.0lf" \
+GPRINT:irqs_avg:AVERAGE:"Avg. %7.0lf" \
+GPRINT:irqs_max:MAX:"Max. %7.0lf" \
 <% files.each do |file| %>
 <%   i = i_num(file) %>
-LINE1:irq_<%= i %>_max#ffffff00:"IRQ <%= i %> \t\t\t\t\t\t\t\t\t\t\t\t\t" \
-GPRINT:irq_<%= i %>_min:MIN:"Min. %3.0lf" \
-GPRINT:irq_<%= i %>_avg:AVERAGE:"Avg. %3.0lf" \
-GPRINT:irq_<%= i %>_max:MAX:"Max. %3.0lf" \
+LINE1:irq_<%= i %>_max#ffffff00:"IRQ <%= i %> \t\t\t\t\t\t\t\t\t\t" \
+GPRINT:irq_<%= i %>_min:MIN:"Min. %7.0lf" \
+GPRINT:irq_<%= i %>_avg:AVERAGE:"Avg. %7.0lf" \
+GPRINT:irq_<%= i %>_max:MAX:"Max. %7.0lf" \
 <% end %>
