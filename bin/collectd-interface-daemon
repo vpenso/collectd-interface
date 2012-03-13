@@ -1,40 +1,10 @@
 #!/usr/bin/env ruby
 
-#---------------------------------------------------------------
-#
-# Interface to Collectd 
-#
-# This is free software: you can redistribute it
-# and/or modify it under the terms of the GNU General Public
-# License as published by the Free Software Foundation,
-# either version 3 of the License, or (at your option) any
-# later version.
-#
-# This program is distributed in the hope that it will be 
-# useful, but WITHOUT ANY WARRANTY; without even the implied 
-# warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
-# PURPOSE. See the GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public 
-# License along with this program. If not, see 
-#
-#   <http://www.gnu.org/licenses/>.
-#
-#----------------------------------------------------------------
-# Author: Victor Penso
-# Copyright 2012
-# Version: 0.1.0
-#----------------------------------------------------------------
-
-
-require 'rubygems'
-require 'getoptlong'
-require 'erb'
-require 'ostruct'
-require 'json'
+require 'collectd/interface/options'
+require 'collectd/interface/config'
+require 'collectd/interface/service'
 
 exec_name = File.split(__FILE__)[-1]
-
 help = <<-EOF
 Synopsis
 ========
@@ -57,12 +27,12 @@ Options
     More verbose output while running this.
   --port,-p NUMBER:
     Start the REST server at port NUMBER.
-  --log,-l PATH:
-    Write the log output to PATH.
   --files, -f PATH:
     RRD files are located in PATH.
     Default is /var/lib/collectd/rrd 
-  --pid-file, -P PATH:
+  --log-file-path,-l PATH:
+    Write the log output to PATH.
+  --pid-file-path, -P PATH:
     Write the process ID to a file in PATH.
 
 Examples
@@ -70,345 +40,36 @@ Examples
 
 Run the stuff in debug-mode:
 
-    #{exec_name} -d
+   #{exec_name} -d
 
 Start the server as root service:
 
-
-    #{exec_name} -p 5000 -l /var/log/ -P /var/run/
+   #{exec_name} -p 5000 -l /var/log/ -P /var/run/
 
 EOF
 
-options = OpenStruct.new
-options.debug = false
-options.port = 4567
-options.log = nil
-options.files = '/var/lib/collectd/rrd'
-options.pid_file = nil
-
-GetoptLong.new(
-  ['--help','-h',GetoptLong::NO_ARGUMENT],
-  ['--debug','-d',GetoptLong::NO_ARGUMENT],
-  ['--port','-p',GetoptLong::REQUIRED_ARGUMENT],
-  ['--log','-l',GetoptLong::REQUIRED_ARGUMENT],
-  ['--files','-f',GetoptLong::REQUIRED_ARGUMENT],
-  ['--pid-file','-P',GetoptLong::REQUIRED_ARGUMENT]
-).each do |opt,arg|
-  case opt
-  when '--port'
-    options.port = arg
-  when '--log'
-    options.log = arg
-  when '--files'
-    options.files = arg
-  when '--pid-file'
-    options.pid_file = arg
-  when '--debug'
-    options.debug = true
-    $DEBUG = true
-  when '--help'
-    $stdout.puts help
-    exit 0
-  end
-end
-
-# Didn't found a better way to pass configuration to the Sinatra instance
-ENV['COLLECTD_RRD_FILES'] = options.files
-
-require 'sinatra/base'
-
-class CollectdInterface < Sinatra::Base
-
-  configure do
-    hostname = `hostname -f`.chop
-    # root directory of this software
-    root = %Q[#{File.dirname(File.expand_path(__FILE__))}/..]
-    # Sinatra configuration
-    mime_type :json, 'application/json'  # JSON as supported output format
-    mime_type :plain, 'text/plain'
-    disable :logging
-     
-    # Settings
-    set :root, root
-    set :rrd_path, "#{ENV['COLLECTD_RRD_FILES']}/#{hostname}/" 
-    set :public_folder, "#{root}/public"
-    set :static, true
-    set :environment, :production
-    
-    # Load all graphic plug-ins available 
-    graphs = Hash.new
-    Dir["#{settings.root}/views/graphs/*.erb"].each do |file|
-      graphs[File.basename(file,'.erb')] = file 
-    end
-    set :plugins, graphs
-
-    # List all RRD files available
-    rrd_values = Array.new
-    Dir["#{settings.rrd_path}/**/*.rrd"].each do |file|
-      plugin = file.gsub(%r<#{settings.rrd_path}>,'').split('/')[1]
-      rrd = File.basename(file,'.rrd')
-      `rrdtool info "#{file}"`.scan(%r{ds\[(\w*)\]}).uniq.flatten.each do |set|
-        rrd_values << "#{plugin}/#{rrd}/#{set}"
-      end
-    end
-    set :rrd_values, rrd_values
-
-    # List all report templates
-    reports = Hash.new
-    Dir["#{settings.root}/views/reports/*.erb"].each { |f| reports[File.basename(f,'.erb')] = f }
-    set :reports, reports
-  end
-
-  get '/data' do
-     @data = settings.rrd_values
-     if params.has_key?('display')
-      @target = params['display']
-      params.delete('display') 
-      p = Array.new; params.each_pair { |k,v| p << "#{k}=#{v}" }
-      @args = p.join('&')
-      redirect "/data/#{@target}?#{@args}"
-     elsif params.has_key?('format')
-       case params['format']
-       when 'json'
-         content_type :json
-         JSON.pretty_generate @data.map! { |d| "/data/#{d}" }
-       else
-         content_type :plain
-         @data.join("\n")
-       end
-     else
-       @target = 'data'
-       erb :data, :layout => "template/default".to_sym
-     end
-  end
-
-  get '/data/*' do |path|
-    if path.empty?
-      redirect '/data'
-    else
-      plugin,type,value = path.split("/")
-      file = "#{settings.rrd_path}#{plugin}/#{type}.rrd" 
-      if File.exists? file
-        data = Array.new
-        # construct the RRD query
-        function = 'AVERAGE'
-        if params.has_key? 'function'
-          param = params['function'].upcase
-          puts param
-          if %w(AVERAGE MIN MAX).include? param
-            function = param
-          end
-        end
-        command = "rrdtool fetch #{file} #{function}"
-        command << " --end Now --start Now-#{params['last']}" if params.has_key? 'last'
-        command << " --r #{params['resolution']}"if params.has_key? 'resolution'
-        #$stderr.puts command if $DEBUG
-        # get the data
-        output = `#{command}`.split("\n")
-        # select the value of interest
-        headers = output.shift.split # remove header
-        key = headers.index(value)
-        output.delete_at 0 # remove empty line
-        # collect the data
-        output.each do |line|
-          line = line.delete(':').split
-          time = line[0].to_i
-          value = line[key+1].to_f # omit time stamp
-          lv = data[-1]
-          data << [time, value]
-        end
-        #remove most time wrong elements
-        data.slice!(0)
-        data.slice!(-1)
-        #filter values which are the same for multiple timestamps
-        final_data = []
-        data.each_index do |el|
-          cur_e = data[el][1]
-          if data[el-1] != nil and data[el+1] != nil and el != 0 and el != data.size-1
-            last_e = data[el-1][1]
-            next_e = data[el+1][1]
-            if cur_e != last_e or cur_e != next_e then
-             final_data.push(data[el])
-            end
-          else
-            final_data.push(data[el])
-          end
-        end
-        data = final_data
-        if params.has_key? 'format'
-          if params['format'] == 'json'
-            content_type :json
-            json = {'name'=>"#{plugin} #{file}",'data'=>data}
-            JSON.pretty_generate json
-          else
-            content_type 'text/plain'
-            output = String.new
-            data.each { |line| output << "#{line[0]}: #{line[1..-1].join(' ')}\n" }
-            output
-          end
-        else
-          @data = data
-          erb :show_values
-        end
-      end
-    end
-  end
-
-  ##
-  ## Web-Interface to all graphs generated from the Collectd RRD files
-  ##
-  get '/graph' do
-    # Clients can discover a list of available graphs using the 
-    # format parameters
-    if params.has_key? 'format'
-      graph_list = settings.plugins.keys.sort.map! { |g| "/graph/#{g}" }
-      if params['format'] == 'json'
-        content_type :json
-        JSON.pretty_generate graph_list
-      else
-        content_type :text
-        graph_list.join("\n")
-      end
-    # By default the web-interface will be displayed 
-    else
-      # by default each graph presents the last 12 hours
-      unless params.has_key? 'start' and params.has_key? 'end'
-        params['start'] = 'end-12h'
-        params['end'] = 'now' 
-      end
-      params['image'] = 'png' unless params.has_key?('image')
-      # display only a subset of the graphs by default
-      unless params.has_key?('display')
-        params['display'] = [ 'cpus', 'memory', 'load', ]
-      end
-      # pass the list of graphs to display into the template
-      @display = params['display']
-      # remove it from the parameter list
-      params.delete('display') if params.has_key?('display')
-      # all other parameters will be appended for the graph
-      # generation.
-      p = Array.new; params.each_pair { |k,v| p << "#{k}=#{v}" }
-      @args = p.join('&')
-      # list of all available graphs for the drop down menu
-      @graphs = settings.plugins
-      # identifier for the template
-      @target = 'graph'
-      # render the templates
-      erb :graph, :layout => "template/default".to_sym
-    end
-  end
-
-  get '/graph/*' do |path|
-    unless settings.plugins.has_key? path
-      redirect '/'
-    else
-      @color = {
-        :red_light => '#FF000044', :red_dark => '#FF0000AA',
-        :green_light => '#00F00022', :green_dark => '#00F000AA',
-        :yellow_light => '#FFFF0022', :yellow_dark => '#FFFF00AA',
-        :blue_light => '#0000FF22', :blue_dark => '#0000FFAA',
-        :orange_light => '#FF450022', :orange_dark => '#FF4500AA',
-        :cyan_light => '#00FFFF22', :cyan_dark => '#00FFFFAA',
-        :purple_light => '#FF00FF22', :purple_dark => '#FF00FFAA'
-      }
-      @type = params.has_key?('image') ? params['image'] : 'png'
-      if params.has_key? 'start' and params.has_key? 'end'
-        @start = params['start']
-        @end = params['end']
-      else
-        @start = 'end-24h'
-        @end = 'now'
-      end
-      @target = %Q[#{settings.public_folder}/images/#{path}.#{@type}]
-      @rrd_path = settings.rrd_path
-      command = erb "graphs/#{path}".to_sym, :layout => :graph_header
-      puts command.chomp if $DEBUG
-      output = `#{command} > /dev/null 2>&1`
-      puts output.chomp if $DEBUG and not output.empty?
-      redirect %Q[/images/#{path}.#{@type}]
-    end
-  end
-
-  get '/report' do
-    @reports = settings.reports.keys.sort 
-    # List all available path to reports
-    if params.has_key? 'format' 
-      report_list = @reports.map! { |r| "/report/#{r}" }
-      if params['format'] == 'json'
-        content_type :json
-        JSON.pretty_generate report_list
-      else # default is plain text
-        content_type :text
-        report_list.join("\n")
-      end
-    # Render a HTML representation of all/a single report(s)
-    else
-      unless params.has_key? 'display'
-        params['display'] = 'disk-free'
-      end
-      @display = params['display']
-      @target = 'report'
-      erb :report, :layout => "template/default".to_sym
-    end
-  end
-
-  get '/report/*' do |path|
-    redirect '/report' if path.empty?
-    # user asks for a specific output format
-    if params.has_key?('format')
-      case params['format']
-      when 'json'
-        content_type :json
-        @type = 'json'
-      when 'html'
-        @type = 'html'
-      else 
-        content_type :plain 
-        @type = 'text'
-      end
-    else
-      content_type :plain
-      @type = 'text'
-    end
-    erb "reports/#{path}".to_sym
-  end
-
-  get '/' do
-    redirect '/graph'
-  end
-
-  error 404 do
-    redirect '/'
-  end
-
-end
-
-#--------------------------------------------------------------
-# Main program
-#--------------------------------------------------------------
-
-
 begin
 
-  unless options.log.nil?
-    file = File.join(options.log,"#{exec_name}.log")
-    $stdout.reopen(file, 'w')
+  Collectd::Interface::Options.help = help
+  Collectd::Interface::Options.parse
+  # drop the process PID into a file if the user asks for it
+  unless Collectd::Interface::Config.pid_file?
+    _pid_file = Collectd::Interface::Config.pid_file(exec_name)
+    File.open(_pid_file,'w') { |file| file.write "#{$$} " }
+  end
+  # pipe program output to a file if the users asks for it
+  unless Collectd::Interface::Config.log_file?
+    _log_file = Collectd::Interface::Config.log_file(exec_name)
+    $stdout.reopen(_log_file,'w')
     $stdout.sync = true
     $stderr.reopen($stdout)
   end
-
-  unless options.pid_file.nil?
-    File.open(File.join(options.pid_file,"#{exec_name}.pid"),'w') do |f| 
-      f.puts $$ 
-    end
-  end
-
-  CollectdInterface.run!( :port => options.port )
+  Collectd::Interface::Service.run!
 
 rescue => exc
   $stderr.puts "ERROR: #{exc.message}"
   $stderr.puts "  use -h for detailed instructions"
-  if options.debug
+  if Collectd::Interface::Config.debug?
     $stderr.puts '-- Stack Trace --'
     $stderr.puts exc.backtrace
   else
@@ -417,4 +78,3 @@ rescue => exc
   exit 1
 end
 
-exit 0

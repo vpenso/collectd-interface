@@ -24,6 +24,19 @@ module Collectd
       end
       # short cuts for attributes
       def debug?; @data['debug'] end
+      # does the user wants to write a file containing the PID
+      def pid_file?
+        self['service']['pid_path'].empty?
+      end
+      def pid_file(name)
+        File.join(self['service']['pid_path'],"#{name}.pid")
+      end
+      def log_file?
+        self['service']['log_path'].empty?
+      end
+      def log_file(name)
+        File.join(self['service']['log_path'],"#{name}.log")
+      end
       def root; @data['root'] end
       class << self
         extend Forwardable
@@ -35,6 +48,8 @@ module Collectd
         # defaults for the Sinatra application
         @data['service'] = Hash.new
         @data['service']['port'] = 5000
+        @data['service']['pid_path'] = String.new
+        @data['service']['log_path'] = String.new
         # find the application root directory relative to this configuration file
         @data['root'] = File.expand_path(File.join(File.dirname(File.expand_path(__FILE__)),'..','..','..'))
         _hostname = `hostname -f`.chop
