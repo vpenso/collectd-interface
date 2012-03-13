@@ -18,7 +18,7 @@ module Collectd
           ['--pid-file-path','-P',GetoptLong::REQUIRED_ARGUMENT],
           ['--config-dump','-C',GetoptLong::NO_ARGUMENT],
           ['--config','-c',GetoptLong::REQUIRED_ARGUMENT],
-          ['--version',GetoptLong::NO_ARGUMENT],
+          ['--version',GetoptLong::NO_ARGUMENT]
         )
       end
       def parse

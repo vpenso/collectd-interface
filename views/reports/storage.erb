@@ -1,5 +1,5 @@
 <% require 'json' 
-content = `df -lh`.split("\n") 
+content = `df -l -h`.split("\n") 
 if @type == 'text' then %><%= content.join("\n") %>
 <% elsif @type == 'json' 
   keys = content[0].chop.chop.split.map! { |v| v.downcase } 

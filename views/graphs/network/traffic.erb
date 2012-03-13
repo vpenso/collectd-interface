@@ -10,7 +10,7 @@
 <%# Return the RRD graph parameters to generate the image %>
 <% else %>
 --title='Network Traffic Interface "<%= @param %>"' \
---vertical-label="Bytes" \
+--vertical-label="Bytes per Second" \
 --alt-autoscale-max \
 DEF:rx_av=<%= @rrd_path %>/interface/if_octets-<%= @param %>.rrd:rx:AVERAGE \
 DEF:rx_min=<%= @rrd_path %>/interface/if_octets-<%= @param %>.rrd:rx:MIN \

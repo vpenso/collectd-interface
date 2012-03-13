@@ -1,7 +1,7 @@
 <ul>
   <li>
     <div class="label">Select graphs to display:</div>
-    <select multiple="yes" size="4" name='display[]'>
+    <select multiple="yes" size="6" name='display[]'>
       <option value='all'>all</option>
       <% @graphs.keys.sort.each do |name| %>
       <option value='<%= name %>'><%= name %></option>

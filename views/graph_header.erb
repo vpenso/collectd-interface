@@ -1,6 +1,15 @@
 rrdtool graph <%= @target %> \
--a <%= @type.upcase %> \
---end <%= @end %> --start=<%= @start %> \
---grid-dash 1:1 --width=400 --height=100 \
---tabwidth=10 --border=0 --color=BACK#FFFFFF \
+--imgformat <%= @type.upcase %> \
+--end <%= @end %> \
+--start=<%= @start %> \
+--grid-dash 1:1 \
+--width=<%= @width %> \
+--height=<%= @height %> \
+<% if @graph_only %>
+--full-size-mode \
+--only-graph \
+<% end %>
+--tabwidth=10 \
+--border=0 \
+--color=BACK#FFFFFF \
 <%= yield %>

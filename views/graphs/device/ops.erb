@@ -1,0 +1,37 @@
+<%# Return a list of all devices this plug-in can answer for %>
+<% if @config %>
+<%   __supports = Array.new %>
+<%   __path = @rrd_path %>
+<%   Dir["#{__path}/disk*/disk_ops.rrd"].each do |file| %>
+<%    __supports << file.gsub(%r<#{__path}/disk->,'').gsub(/\/disk_ops\.rrd/,'')  %>
+<%   end %>
+<%   require 'json' %>
+<%=  JSON.generate(__supports.sort)%>
+<%# Return the RRD graph parameters to generate the image %>
+<% else %>
+<% __mount_point = `df -l | grep "/dev/#{@param}"`.split[-1] %>
+<% __title = "Disk IO Opperations on /dev/#{@param}" %>
+--title='<%= __title %>' \
+--vertical-label="Per Second" \
+--alt-autoscale-max \
+DEF:read_av=<%= @rrd_path %>disk-<%= @param %>/disk_ops.rrd:read:AVERAGE \
+DEF:read_min=<%= @rrd_path %>disk-<%= @param %>/disk_ops.rrd:read:MIN \
+DEF:read_max=<%= @rrd_path %>disk-<%= @param %>/disk_ops.rrd:read:MAX \
+DEF:write_av=<%= @rrd_path %>disk-<%= @param %>/disk_ops.rrd:write:AVERAGE \
+DEF:write_min=<%= @rrd_path %>disk-<%= @param %>/disk_ops.rrd:write:MIN \
+DEF:write_max=<%= @rrd_path %>disk-<%= @param %>/disk_ops.rrd:write:MAX \
+AREA:read_max<%= @color[:green_light] %> \
+AREA:read_min#ffffff \
+AREA:write_max<%= @color[:blue_light] %> \
+AREA:write_min#ffffff \
+LINE1:read_av<%= @color[:green_dark] %>:"Read\t\t\t\t\t\t" \
+GPRINT:read_min:MIN:"Min. %4.0lf" \
+GPRINT:read_av:AVERAGE:"Avg. %4.0lf" \
+GPRINT:read_max:MAX:"Max. %4.0lf" \
+GPRINT:read_av:LAST:"Last %4.0lf" \
+LINE1:write_av<%= @color[:blue_dark] %>:"Write\t\t\t\t\t" \
+GPRINT:write_min:MIN:"Min. %4.0lf" \
+GPRINT:write_av:AVERAGE:"Avg. %4.0lf" \
+GPRINT:write_max:MAX:"Max. %4.0lf" \
+GPRINT:write_av:LAST:"Last %4.0lf" \
+<% end %>

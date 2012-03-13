@@ -1,8 +1,8 @@
 Gem::Specification.new do |s|
   s.name = %q{collectd-interface}
-  s.version = "0.3.1"
+  s.version = "0.5.0"
   s.authors = ["Victor Penso"]
-  s.date = '2012-02-27'
+  s.date = '2012-03-13'
   s.homepage = 'https://github.com/vpenso/collectd-interface'
   s.email = 'vic.penso@gmail.com'
   s.licenses = 'GPLv3'
@@ -23,6 +23,6 @@ Gem::Specification.new do |s|
     '--line-numbers' <<
     '--inline-source' <<
     '--title' << 'Collectd Interface'
-  s.require_paths = ['views/']
+  s.require_paths = ['views/','lib']
   s.rubyforge_project = %q{collectd-interface}
 end

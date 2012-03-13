@@ -2,6 +2,10 @@
 
 * Reimplementation of Collect-Interface.
 * Supporting URI parameters in graph an report plug-ins. 
+* Javascript filter for reports.
+* Splitting code into library files in lib/
+* New plug-ins for network packets and devices ops/s
+* Clients can query for custom sized graphs by URL parameters
 
 ## 0.3.1
 

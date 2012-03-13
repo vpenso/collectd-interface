@@ -75,6 +75,17 @@ module Collectd
             @start = 'end-24h'
             @end = 'now'
           end
+          # clients can query custom sized graphs, without legend
+          @graph_only = false
+          if params.has_key?('width') and params.has_key?('height') 
+            @width = params['width']
+            @height = params['height']
+            @graph_only = true 
+          # default graph size
+          else
+            @width = 400 
+            @height = 100
+          end
           # name of the file to store the graph image into
           @target = %Q[#{settings.public_folder}/images/#{path}.#{@type}]
           # location of the Collectd RRD files
