@@ -1,4 +1,7 @@
+require 'uri'
+require 'net/http'
 require 'sinatra/base'
+
 module Collectd
   module Interface
     class Service < Sinatra::Base
@@ -17,31 +20,34 @@ module Collectd
           end
         # Render a HTML representation of all/one report(s)
         else
+          # list of the URLs to requested all reports selected by the client query
+          _reports_selected = Array.new
           # the default report to display
           unless params.has_key? 'display'
-            @display = 'storage'
+            _reports_selected << '/report/storage?format=html'
           # when a selection is passed by URI parameter
           else 
             _display = params['display']
             # show all reports
             if _display == 'all'
-              @display = 'all'
-              # list of all templates 
-              @templates = Array.new
-              @reports.each do |report|
-                @templates << settings.reports[report]
+              @reports.each do |path|
+                _reports_selected << "/report/#{path}?format=html"
               end
-            # select a specific report
+            # a report select by the client
             else
-              if settings.reports.has_key?(_display)
-                @display = settings.reports[_display]
-              else
-                not_found
-              end
+              not_fount unless settings.reports.has_key?(_display)
+              # query URL for this request
+              _reports_selected << "/report/#{_display}?format=html"
             end
           end
           @target = 'report'
-          erb :report, :layout => "template/default".to_sym
+          # actual reports requested by the client query
+          @reports_selected = Hash.new
+          _reports_selected.each do |path| 
+            __uri = URI.parse("http://localhost:#{settings.port}#{path}")
+            @reports_selected[path] = Net::HTTP.get_response(__uri).body
+          end
+          erb :report, :layout => :'template/default'
         end
       end
 

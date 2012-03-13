@@ -13,6 +13,7 @@ module Collectd
         mime_type :plain, 'text/plain'
         # read the configuration object and set the Sinatra defaults
         set :root, Config.root
+        set :port, Config['service']['port']
         set :rrd_path, Config['rrd_path']
         set :public_folder, File.join(Config.root,'public')
         set :static, true

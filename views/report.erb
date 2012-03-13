@@ -1,17 +1,8 @@
 <ul style='list-style-type:none; padding-left:0'>
-<% if @display == 'all' %>
-<%   for val in @templates %>
-  <li>
-<%=    erb("/reports/#{val}".to_sym)  %>
-<%     url = "/report/#{val}?format=json" %>
-    <a href="<%= url %>"><%= url %></a>
-  </li>
-<%   end %>
-<% else %>
-  <li>
-<%=   erb("/reports/#{@display}".to_sym)%>
-<%    url = "/report/#{@display}?format=json" %>
-    <a href="<%= url%>"><%= url %></a>
-  </li>
+<% @reports_selected.each_pair do |path,html| %>
+     <li>
+<%=    html %>
+       <a href="<%= path %>"><%= path %></a>
+     </li>
 <% end %>
 </ul>

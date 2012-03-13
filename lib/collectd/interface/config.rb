@@ -32,6 +32,9 @@ module Collectd
       private
       def defaults
         @data['debug'] = false
+        # defaults for the Sinatra application
+        @data['service'] = Hash.new
+        @data['service']['port'] = 5000
         # find the application root directory relative to this configuration file
         @data['root'] = File.expand_path(File.join(File.dirname(File.expand_path(__FILE__)),'..','..','..'))
         _hostname = `hostname -f`.chop
@@ -91,7 +94,6 @@ module Collectd
             self['reports'][_name] = _file
           end
         end
-        puts self['reports']
       end
     end
   end
