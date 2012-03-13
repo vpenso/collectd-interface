@@ -50,6 +50,7 @@ module Collectd
         @data['service']['port'] = 5000
         @data['service']['pid_path'] = String.new
         @data['service']['log_path'] = String.new
+        @data['service']['config_path'] = String.new
         # find the application root directory relative to this configuration file
         @data['root'] = File.expand_path(File.join(File.dirname(File.expand_path(__FILE__)),'..','..','..'))
         _hostname = `hostname -f`.chop
@@ -57,6 +58,7 @@ module Collectd
       end
       def find_graphs
         self['graphs'] = Hash.new
+        # path to the plug-ins shipped with this software
         _path = File.join(self.root,'views','graphs')
         Dir["#{_path}/**/*.erb"].each do |file|
           # strip the template suffix

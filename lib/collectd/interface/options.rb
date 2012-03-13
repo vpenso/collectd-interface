@@ -47,8 +47,9 @@ module Collectd
              $stdout.puts @help
              exit 0
            when '--config'
-             config = File.expand_path(arg)
-             if File.directory? config
+             _config = File.expand_path(arg)
+             if File.directory? _config
+               Config['service']['config_path'] = _config
              else
                raise %Q[Configuration directory "#{config}" missing!]
              end

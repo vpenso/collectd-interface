@@ -6,3 +6,30 @@
      </li>
 <% end %>
 </ul>
+<% if @reports_selected.length < 2 %>
+<script src="script/table_filter.js" type="text/javascript"></script>
+<script language="javascript" type="text/javascript">
+  var tableFilters = {
+    btn: true,
+    loader: true,
+    display_all_text: "[ Show all ]",
+    loader_text: "Filtering...",
+    btn_reset_text: "Clear",
+    btn_reset: true,
+  } 
+        
+  var elems = document.getElementsByTagName('div'),i;
+  for (i in elems)
+  {
+    if(elems[i].className == "content")
+    {
+      var tables = elems[i].getElementsByTagName("table"),k;
+      for(k in tables)
+      {
+        tables[k].id="table"+k+"";
+        setFilterGrid(tables[k].id,0,tableFilters);
+      }
+    }
+  }
+</script>
+<% end %>
