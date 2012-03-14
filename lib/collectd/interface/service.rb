@@ -14,6 +14,18 @@ module Collectd
         # read the configuration object and set the Sinatra defaults
         set :root, Config.root
         set :port, Config['service']['port']
+        # by default lookup templates in the application views/ directory
+        _views = [ File.join(Config.root,'views') ]
+        # optionally add a template directory defined by the user
+        _views << Config['plugin_path'] unless Config['plugin_path'].empty?
+        set :views, _views
+        # overwrite the template lookup method to cover all
+        # paths in views
+        def find_template(views, name, engine, &block)
+          Array(views).each do |path|
+            super(path, name, engine, &block)
+          end
+        end
         set :rrd_path, Config['rrd_path']
         set :public_folder, File.join(Config.root,'public')
         set :static, true

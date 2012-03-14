@@ -9,7 +9,17 @@ module Collectd
       include Singleton
       def initialize
         @data = Hash.new
-        defaults() 
+        @data['debug'] = false
+        # defaults for the Sinatra application
+        @data['service'] = Hash.new
+        @data['service']['port'] = 5000
+        @data['service']['pid_path'] = String.new
+        @data['service']['log_path'] = String.new
+        @data['plugin_path'] = String.new
+        # find the application root directory relative to this configuration file
+        @data['root'] = File.expand_path(File.join(File.dirname(File.expand_path(__FILE__)),'..','..','..'))
+        _hostname = `hostname -f`.chop
+        @data['rrd_path'] = File.join('/var/lib/collectd/rrd/',_hostname)
         find_graphs()
         find_data()
         find_reports()
@@ -37,47 +47,52 @@ module Collectd
       def log_file(name)
         File.join(self['service']['log_path'],"#{name}.log")
       end
+      # add optional user plug-ins to the configuration
+      def plugin_path(path)
+        self['plugin_path'] = path
+        _path = File.join(path,'graphs')
+        if File.directory? _path
+          Dir["#{_path}/**/*.erb"].each do |file|
+            graphs_add_plugin(_path,file)
+          end
+        end
+      end
       def root; @data['root'] end
       class << self
         extend Forwardable
         def_delegators :instance, *Config.instance_methods(false)
       end
       private
-      def defaults
-        @data['debug'] = false
-        # defaults for the Sinatra application
-        @data['service'] = Hash.new
-        @data['service']['port'] = 5000
-        @data['service']['pid_path'] = String.new
-        @data['service']['log_path'] = String.new
-        @data['service']['config_path'] = String.new
-        # find the application root directory relative to this configuration file
-        @data['root'] = File.expand_path(File.join(File.dirname(File.expand_path(__FILE__)),'..','..','..'))
-        _hostname = `hostname -f`.chop
-        @data['rrd_path'] = File.join('/var/lib/collectd/rrd/',_hostname)
+      def graphs_add_plugin(path,file)
+        # strip the template suffix
+        _name = file.gsub(/\.erb/,'')
+        # remove the path to the graph template directory
+        _name = _name.gsub(%r<#{path}>,'')[1..-1]
+        # strip the application path from the file name
+        _file = file.gsub(%r<#{path}/>,'').gsub(/\.erb/,'')
+        # does the plug-in supports URI parameters
+        if _name.include?('/')
+          # ask the plug-in for supported paths
+          @config = true
+          @rrd_path = self['rrd_path']
+          _supports = JSON.parse(ERB.new(File.read(file)).result(binding))
+          if _supports.empty?
+            self['graphs'][_name] = _file
+          else
+            _supports.each do |path|
+              self['graphs']["#{_name}/#{path}"] = _file
+            end
+          end
+        else
+          self['graphs'][_name] = _file
+        end
       end
       def find_graphs
         self['graphs'] = Hash.new
         # path to the plug-ins shipped with this software
         _path = File.join(self.root,'views','graphs')
         Dir["#{_path}/**/*.erb"].each do |file|
-          # strip the template suffix
-          _name = file.gsub(/\.erb/,'')
-          # remove the path to the graph template directory
-          _name = _name.gsub(%r<#{_path}>,'')[1..-1]
-          # strip the application path from the file name
-          _file = file.gsub(%r<#{_path}/>,'').gsub(/\.erb/,'')
-          # does the plug-in supports URI parameters
-          if _name.include?('/')
-            @config = true
-            @rrd_path = self['rrd_path']
-            _supports = JSON.parse(ERB.new(File.read(file)).result(binding))
-            _supports.each do |path|
-              self['graphs']["#{_name}/#{path}"] = _file
-            end
-          else
-            self['graphs'][_name] = _file
-          end
+          graphs_add_plugin(_path,file)
         end
       end
       def find_data

@@ -2,7 +2,6 @@
 
 require 'collectd/interface/options'
 require 'collectd/interface/config'
-require 'collectd/interface/service'
 
 exec_name = File.split(__FILE__)[-1]
 help = <<-EOF
@@ -34,6 +33,8 @@ Options
     Write the log output to PATH.
   --pid-file-path, -P PATH:
     Write the process ID to a file in PATH.
+  --plugin-path, -I PATH:
+    Path to additional graph and report plugins.
 
 Examples
 --------
@@ -64,6 +65,8 @@ begin
     $stdout.sync = true
     $stderr.reopen($stdout)
   end
+  # don't require Sinatra before options have been set in the configuration object!
+  require 'collectd/interface/service'
   Collectd::Interface::Service.run!
 
 rescue => exc

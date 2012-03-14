@@ -16,9 +16,9 @@ module Collectd
           ['--port','-p',GetoptLong::REQUIRED_ARGUMENT],
           ['--log-file-path','-l',GetoptLong::REQUIRED_ARGUMENT],
           ['--pid-file-path','-P',GetoptLong::REQUIRED_ARGUMENT],
-          ['--config-dump','-C',GetoptLong::NO_ARGUMENT],
-          ['--config','-c',GetoptLong::REQUIRED_ARGUMENT],
-          ['--version',GetoptLong::NO_ARGUMENT]
+          ['--plugin-path','-I',GetoptLong::REQUIRED_ARGUMENT],
+          ['--version',GetoptLong::NO_ARGUMENT],
+          ['--config-dump','-C',GetoptLong::NO_ARGUMENT]
         )
       end
       def parse
@@ -38,6 +38,13 @@ module Collectd
              else
                raise("#{arg} is not a directory!")
              end
+           when '--plugin-path'
+             _path = File.expand_path(arg)
+             if File.directory? arg
+               Config.plugin_path(_path)
+             else
+               raise("#{arg} is not a directory!")
+             end
            when '--config-dump'
              $stdout.puts Config.inspect
              exit 0
@@ -46,13 +53,6 @@ module Collectd
            when '--help'
              $stdout.puts @help
              exit 0
-           when '--config'
-             _config = File.expand_path(arg)
-             if File.directory? _config
-               Config['service']['config_path'] = _config
-             else
-               raise %Q[Configuration directory "#{config}" missing!]
-             end
            when '--version'
              $stdout.puts '0.5.0'
              exit 0 

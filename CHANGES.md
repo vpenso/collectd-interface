@@ -1,3 +1,7 @@
+## 0.5.1
+
+* Options plugin directory for users.
+
 ## 0.5.0
 
 * Reimplementation of Collect-Interface.
