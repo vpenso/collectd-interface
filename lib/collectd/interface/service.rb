@@ -1,3 +1,4 @@
+require 'rubygems'
 require 'json'
 require 'sinatra/base'
 require 'collectd/interface/config'
