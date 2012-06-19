@@ -33,7 +33,7 @@ Get help:
 
     collectd-interface-daemon --help
 
-Start the Collectd Interface in fore-ground:
+Start the Collectd-Interface in fore-ground:
 
     collectd-interface-daemon
 
@@ -41,9 +41,17 @@ Open the web-interface at <a href='localhost:4567'>localhost:4567</a>.
 Collectd-Interface expects the RRD file in `/var/lib/collectd/rrd/`
 by default. Overwrite it with the option `-f PATH`.
 
-Start the Collectd Interface as daemon:
+Start the Collectd-Interface as daemon:
 
     collectd-interface-daemon -p 5000 -l /var/log/ -P /var/run/ &
+
+Collectd-Interface supports plugins for graphs and reports:
+
+    collectd-interface-daemon --port 5000 --plugin-path /var/collectd/plugins
+
+Find a collection of plugins in the [collectd-interface-plugins][plug] repository.
+
+[plug]: https://github.com/vpenso/collectd-interface-plugins
 
 
 Interfaces
@@ -121,9 +129,22 @@ in the JSON format. Other consolidation functions
 are average (default) and min, for the smallest value
 in a time-frame.
 
-
 Copying
 =======
 
-Copyright 2011 Victor Penso  
-License [GPLv3](http://www.gnu.org/licenses/gpl-3.0.html) (see LICENSE file)
+Copyright 2012 Victor Penso
+
+This is free software: you can redistribute it
+and/or modify it under the terms of the GNU General Public
+License as published by the Free Software Foundation,
+either version 3 of the License, or (at your option) any
+later version.
+
+This program is distributed in the hope that it will be
+useful, but WITHOUT ANY WARRANTY; without even the implied
+warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public
+License along with this program. If not, see 
+<http://www.gnu.org/licenses/>.
