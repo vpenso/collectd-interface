@@ -21,6 +21,8 @@ module Collectd
         @data['service']['log_path'] = String.new
         # User defined path to graphs and reports plug-ins 
         @data['plugin_path'] = String.new
+        # Location of generated graph files
+        @data['graph_path'] = '/var/lib/collectd-interface'
         # find the application root directory relative to this configuration file
         @data['root'] = File.expand_path(File.join(File.dirname(File.expand_path(__FILE__)),'..','..','..'))
         _hostname = `hostname -f`.chop
@@ -61,6 +63,11 @@ module Collectd
       # Path to the log file.
       def log_file(name)
         File.join(self['service']['log_path'],"#{name}.log")
+      end
+
+      # Path to graph files
+      def graph_path(path)
+        self['graph_path'] = path
       end
 
       # Add optional user plug-ins to the configuration, where

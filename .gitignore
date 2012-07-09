@@ -3,3 +3,4 @@
 public/images
 graphs/disk-traffic-var.erb
 *.gem
+.idea/*

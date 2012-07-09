@@ -50,7 +50,7 @@ module Collectd
 
       get '/graph/*' do |path|
         unless settings.graphs.has_key? path
-          redirect '/'
+          status 404
         else
           # name of the template use to render the graph
           _template = settings.graphs[path]
@@ -86,8 +86,15 @@ module Collectd
             @width = 400 
             @height = 100
           end
+
+          image_dir = Pathname.new(File.join(settings.graph_folder, path)).parent
+
+          unless File.exist?(image_dir)
+            FileUtils.mkpath image_dir
+          end
+
           # name of the file to store the graph image into
-          @target = %Q[#{settings.public_folder}/images/#{path}.#{@type}]
+          @target = %Q[#{settings.graph_folder}/#{path}.#{@type}]
           # location of the Collectd RRD files
           @rrd_path = settings.rrd_path + '/'
           # last value of the URI path is parameter to the template
@@ -98,7 +105,9 @@ module Collectd
           output = `#{command} > /dev/null 2>&1`
           puts output.chomp if $DEBUG and not output.empty?
           # redirect the client to the rendered image
-          redirect %Q[/images/#{path}.#{@type}]
+          # redirect %Q[/images/#{path}.#{@type}]
+          content_type 'image/png'
+          File.read(%Q[#{settings.graph_folder}/#{path}.#{@type}])
         end
       end
     end

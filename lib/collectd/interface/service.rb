@@ -29,6 +29,7 @@ module Collectd
         end
         set :rrd_path, Config['rrd_path']
         set :public_folder, File.join(Config.root,'public')
+        set :graph_folder, Config['graph_path']
         set :static, true
         set :environment, :production
         set :graphs, Config['graphs']
