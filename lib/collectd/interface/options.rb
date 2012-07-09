@@ -17,6 +17,7 @@ module Collectd
           ['--log-file-path','-l',GetoptLong::REQUIRED_ARGUMENT],
           ['--pid-file-path','-P',GetoptLong::REQUIRED_ARGUMENT],
           ['--plugin-path','-I',GetoptLong::REQUIRED_ARGUMENT],
+          ['--graph-path','-G',GetoptLong::REQUIRED_ARGUMENT],
           ['--version',GetoptLong::NO_ARGUMENT],
           ['--config-dump','-C',GetoptLong::NO_ARGUMENT]
         )
@@ -45,6 +46,13 @@ module Collectd
              else
                raise("#{arg} is not a directory!")
              end
+             when '--graph-path'
+               _path = File.expand_path(arg)
+               if File.directory? arg
+                 Config.graph_path(_path)
+               else
+                 raise("#{arg} is not a directory!")
+               end
            when '--config-dump'
              $stdout.puts Config.inspect
              exit 0

@@ -35,6 +35,8 @@ Options
     Write the process ID to a file in PATH.
   --plugin-path, -I PATH:
     Path to additional graph and report plugins.
+  --graph-path, -G PATH:
+    Working area for graph storage.
 
 Examples
 --------
