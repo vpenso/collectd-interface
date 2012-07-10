@@ -1,3 +1,7 @@
+## next version
+
+* Seperate location for storage of generated graphs.
+
 ## 0.5.1
 
 * Options plugin directory for users.
