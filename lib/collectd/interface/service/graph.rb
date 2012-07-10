@@ -55,8 +55,9 @@ module Collectd
           # name of the template use to render the graph
           _template = settings.graphs[path]
           # path to the public directory to store the rendered image
-          _target_path = File.dirname(File.join(settings.public_folder,'images',path))
+          _target_path = File.dirname(File.join(settings.graph_folder,path))
           FileUtils.mkdir_p(_target_path) unless File.directory? _target_path 
+          
           # variables available to the plug-in
           @color = {
             :red_light => '#FF000044', :red_dark => '#FF0000AA',
@@ -85,12 +86,6 @@ module Collectd
           else
             @width = 400 
             @height = 100
-          end
-
-          image_dir = Pathname.new(File.join(settings.graph_folder, path)).parent
-
-          unless File.exist?(image_dir)
-            FileUtils.mkpath image_dir
           end
 
           # name of the file to store the graph image into
